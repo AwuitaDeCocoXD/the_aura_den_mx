@@ -1,0 +1,15 @@
+{
+  "$schema": "https://rork.com/schema/rork.json",
+  "apps": [
+    {
+      "name": "The Aura Den",
+      "path": "android",
+      "framework": "kotlin"
+    },
+    {
+      "name": "The Aura Den",
+      "path": "ios-the-aura-den",
+      "framework": "swift"
+    }
+  ]
+}
