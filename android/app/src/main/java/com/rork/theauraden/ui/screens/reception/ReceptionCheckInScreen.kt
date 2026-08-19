@@ -67,6 +67,7 @@ fun ReceptionCheckInScreen(
     state: DemoUiState,
     currentRoute: String,
     onTabSelected: (String) -> Unit,
+    onBack: () -> Unit,
     onMarkArrival: (String) -> Unit,
     onOpenWalkIn: () -> Unit
 ) {
@@ -86,6 +87,7 @@ fun ReceptionCheckInScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
+                onBack = onBack,
                 title = "Check-in de hoy",
                 eyebrow = "Recepción",
                 subtitle = AuraCopy.TODAY_LABEL

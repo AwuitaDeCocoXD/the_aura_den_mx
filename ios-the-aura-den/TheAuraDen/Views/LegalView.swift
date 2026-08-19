@@ -41,22 +41,7 @@ struct LegalView: View {
                         Spacer(minLength: 0)
                     }
 
-                    Spacer().frame(height: 18)
-
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "info.circle.fill")
-                            .font(.system(size: 18))
-                            .foregroundStyle(AuraPalette.sand)
-                        Text(LegalCopy.disclaimer)
-                            .font(AuraFont.bodySmall())
-                            .foregroundStyle(AuraPalette.inkMuted)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(AuraPalette.cream, in: .rect(cornerRadius: AuraRadius.card))
-
-                    Spacer().frame(height: 20)
+                    Spacer().frame(height: 22)
 
                     Text(tab)
                         .font(AuraFont.headlineSmall())

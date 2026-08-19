@@ -197,6 +197,19 @@ data class TopSpecialist(
     val share: Float
 )
 
+/** Which kind of event produced an in-app notice. */
+enum class NotificationKind { PAYMENT, APPOINTMENT, CONTRACT, STUDIO }
+
+/** An entry of the in-app notice centre opened from the bell. */
+data class AppNotification(
+    val id: String,
+    val kind: NotificationKind,
+    val title: String,
+    val body: String,
+    val timeAgo: String,
+    val unread: Boolean = false
+)
+
 /** A membership charge the coworking still has to collect. */
 data class PendingCharge(
     val id: String,

@@ -4,6 +4,7 @@ import SwiftUI
 struct AgendaView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
+    let onBack: () -> Void
     let onOpenAppointment: (String) -> Void
     let onScheduleClient: () -> Void
 
@@ -24,6 +25,7 @@ struct AgendaView: View {
                 title: "Mi agenda",
                 eyebrow: store.profile.name,
                 subtitle: store.selectedDay.fullLabel,
+                onBack: onBack,
                 trailing: {
                     ZStack {
                         RoundedRectangle(cornerRadius: 14)

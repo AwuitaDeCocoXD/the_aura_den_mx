@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -19,20 +18,25 @@ import com.rork.theauraden.data.StationStatus
 import com.rork.theauraden.data.UserRole
 import com.rork.theauraden.ui.components.RoleSwitcherSheet
 import com.rork.theauraden.ui.screens.LegalScreen
+import com.rork.theauraden.ui.screens.NotificationsScreen
+import com.rork.theauraden.ui.screens.SplashScreen
 import com.rork.theauraden.ui.screens.SuccessScreen
 import com.rork.theauraden.ui.screens.admin.AdminLiveScreen
 import com.rork.theauraden.ui.screens.admin.AdminReportsScreen
 import com.rork.theauraden.ui.screens.admin.AdminSpecialistsScreen
 import com.rork.theauraden.ui.screens.auth.CreateAccountScreen
 import com.rork.theauraden.ui.screens.auth.LoginScreen
+import com.rork.theauraden.ui.screens.auth.SignUpMode
 import com.rork.theauraden.ui.screens.auth.WelcomeScreen
 import com.rork.theauraden.ui.screens.checkout.MembershipCheckoutScreen
 import com.rork.theauraden.ui.screens.checkout.ReceiptScreen
 import com.rork.theauraden.ui.screens.checkout.ServiceCheckoutScreen
+import com.rork.theauraden.ui.screens.client.BookingScreen
 import com.rork.theauraden.ui.screens.client.ClientAppointmentScreen
 import com.rork.theauraden.ui.screens.client.ClientExploreScreen
 import com.rork.theauraden.ui.screens.client.ClientHistoryScreen
 import com.rork.theauraden.ui.screens.client.ClientProfileScreen
+import com.rork.theauraden.ui.screens.client.ReviewScreen
 import com.rork.theauraden.ui.screens.contract.ContractReadScreen
 import com.rork.theauraden.ui.screens.contract.ContractSignScreen
 import com.rork.theauraden.ui.screens.contract.ContractSignedScreen
@@ -54,6 +58,10 @@ import com.rork.theauraden.ui.screens.specialist.SpecialistHomeScreen
 private const val SUCCESS_RESERVATION = "reservation"
 private const val SUCCESS_APPOINTMENT = "appointment"
 private const val SUCCESS_NOTIFY = "notify"
+private const val SUCCESS_BOOKING = "booking"
+private const val SUCCESS_REVIEW = "review"
+
+private const val MODE_GUEST = "guest"
 
 @Composable
 fun AppNavigation() {
@@ -75,6 +83,11 @@ fun AppNavigation() {
         }
     }
 
+    /** Back arrow of a secondary tab: always returns to the home of the active role. */
+    fun backToRoleHome() {
+        openTab(startRouteForRole(state.role))
+    }
+
     fun signOutToWelcome() {
         navController.navigate(Routes.WELCOME) {
             popUpTo(Routes.WELCOME) { inclusive = true }
@@ -88,11 +101,26 @@ fun AppNavigation() {
         }
     }
 
-    NavHost(navController = navController, startDestination = Routes.WELCOME) {
+    NavHost(navController = navController, startDestination = Routes.SPLASH) {
+
+        composable(Routes.SPLASH) {
+            SplashScreen(
+                onFinished = {
+                    navController.navigate(Routes.WELCOME) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                }
+            )
+        }
 
         composable(Routes.WELCOME) {
             WelcomeScreen(
-                onCreateAccount = { navController.navigate(Routes.CREATE_ACCOUNT) },
+                onCreateAccount = {
+                    navController.navigate(Routes.createAccount("specialist"))
+                },
+                onCreateGuestAccount = {
+                    navController.navigate(Routes.createAccount(MODE_GUEST))
+                },
                 onSignIn = { navController.navigate(Routes.LOGIN) }
             )
         }
@@ -104,20 +132,39 @@ fun AppNavigation() {
                     viewModel.setRole(UserRole.SPECIALIST)
                     goToRoleStart(UserRole.SPECIALIST)
                 },
-                onCreateAccount = { navController.navigate(Routes.CREATE_ACCOUNT) }
+                onCreateAccount = {
+                    navController.navigate(Routes.createAccount("specialist"))
+                },
+                onCreateGuestAccount = {
+                    navController.navigate(Routes.createAccount(MODE_GUEST))
+                }
             )
         }
 
-        composable(Routes.CREATE_ACCOUNT) {
+        composable("${Routes.CREATE_ACCOUNT}/{mode}") { entry ->
+            val mode = entry.arguments?.getString("mode").orEmpty()
             CreateAccountScreen(
+                initialMode = if (mode == MODE_GUEST) SignUpMode.GUEST else SignUpMode.SPECIALIST,
                 onBack = { navController.popBackStack() },
                 onRegistered = { name ->
                     viewModel.setRole(UserRole.SPECIALIST)
                     viewModel.startContractFlow(name)
                     navController.navigate(Routes.CONTRACT_READ)
                 },
+                onRegisteredGuest = { name ->
+                    viewModel.startGuestAccount(name)
+                    goToRoleStart(UserRole.CLIENT)
+                },
                 onSignIn = { navController.navigate(Routes.LOGIN) },
                 onOpenLegal = { navController.navigate(Routes.LEGAL) }
+            )
+        }
+
+        composable(Routes.NOTIFICATIONS) {
+            NotificationsScreen(
+                notifications = state.notifications,
+                onBack = { navController.popBackStack() },
+                onMarkRead = viewModel::markNotificationsRead
             )
         }
 
@@ -188,6 +235,8 @@ fun AppNavigation() {
                 onTabSelected = ::openTab,
                 onOpenProfile = { navController.navigate(Routes.PROFILE) },
                 onOpenRoleSwitcher = { showRoleSheet = true },
+                unreadNotifications = state.unreadNotifications,
+                onOpenNotifications = { navController.navigate(Routes.NOTIFICATIONS) },
                 onOpenAgenda = { openTab(Routes.SPECIALIST_AGENDA) },
                 onOpenSpaces = { openTab(Routes.SPECIALIST_SPACES) },
                 onScheduleClient = { navController.navigate(Routes.SCHEDULE_CLIENT) },
@@ -203,6 +252,7 @@ fun AppNavigation() {
                 state = state,
                 currentRoute = currentRoute,
                 onTabSelected = ::openTab,
+                onBack = ::backToRoleHome,
                 onSelectDay = viewModel::selectDay,
                 onOpenAppointment = { id ->
                     navController.navigate(Routes.appointmentDetail(id))
@@ -215,6 +265,7 @@ fun AppNavigation() {
             SpacesScreen(
                 currentRoute = currentRoute,
                 onTabSelected = ::openTab,
+                onBack = ::backToRoleHome,
                 hasSignedContract = state.hasSignedContract,
                 onOpenStation = { id -> navController.navigate(Routes.reserveSpace(id)) },
                 onOpenMemberships = { navController.navigate(Routes.MEMBERSHIPS) },
@@ -227,6 +278,7 @@ fun AppNavigation() {
                 state = state,
                 currentRoute = currentRoute,
                 onTabSelected = ::openTab,
+                onBack = ::backToRoleHome,
                 onChangePlan = { navController.navigate(Routes.MEMBERSHIPS) },
                 onOpenReceipt = { id -> navController.navigate(Routes.receipt(id)) }
             )
@@ -321,6 +373,38 @@ fun AppNavigation() {
             val kind = entry.arguments?.getString("kind").orEmpty()
             val isReservation = kind == SUCCESS_RESERVATION
             val isNotify = kind == SUCCESS_NOTIFY
+            val isBooking = kind == SUCCESS_BOOKING
+            val isReview = kind == SUCCESS_REVIEW
+
+            if (isBooking || isReview) {
+                SuccessScreen(
+                    title = if (isReview) "¡Gracias!" else "¡Tu cita quedó lista!",
+                    message = if (isReview) {
+                        "Tu reseña ayuda a que otras invitadas encuentren a la especialista " +
+                            "indicada."
+                    } else {
+                        "Te esperamos en The Aura Den. Recibirás un recordatorio un día antes."
+                    },
+                    detail = if (isReview) {
+                        null
+                    } else {
+                        state.clientAppointment?.let {
+                            "${it.specialistName} · ${it.dateLabel} · ${it.time}"
+                        }
+                    },
+                    primaryLabel = "Ver mi cita",
+                    onPrimary = { goToRoleStart(UserRole.CLIENT) },
+                    secondaryLabel = "Explorar más especialistas",
+                    onSecondary = {
+                        navController.navigate(Routes.CLIENT_EXPLORE) {
+                            popUpTo(Routes.WELCOME)
+                            launchSingleTop = true
+                        }
+                    }
+                )
+                return@composable
+            }
+
             SuccessScreen(
                 title = if (isNotify) "Te avisamos" else "¡Listo!",
                 message = when {
@@ -427,19 +511,25 @@ fun AppNavigation() {
             ClientAppointmentScreen(
                 appointment = state.clientUpcoming.firstOrNull(),
                 currentRoute = currentRoute,
+                guestName = state.guestName,
+                guestInitials = state.guestInitials,
+                isNewGuest = state.isNewGuest,
+                unreadNotifications = state.unreadNotifications,
                 onTabSelected = ::openTab,
+                onOpenNotifications = { navController.navigate(Routes.NOTIFICATIONS) },
                 onCancel = {
                     state.clientAppointment?.let { viewModel.cancelAppointment(it.id) }
                 },
                 onExplore = { openTab(Routes.CLIENT_EXPLORE) },
                 onPayService = {
-                    val service = state.clientUpcoming.firstOrNull()?.service
+                    val upcoming = state.clientUpcoming.firstOrNull()
                     val serviceId = DemoData.services
-                        .firstOrNull { it.name == service }?.id
+                        .firstOrNull { it.name == upcoming?.service }?.id
                         ?: DemoData.services.first().id
-                    navController.navigate(
-                        Routes.serviceCheckout(DemoData.currentSpecialist.id, serviceId)
-                    )
+                    val specialistId = DemoData.specialists
+                        .firstOrNull { it.name == upcoming?.specialistName }?.id
+                        ?: DemoData.currentSpecialist.id
+                    navController.navigate(Routes.serviceCheckout(specialistId, serviceId))
                 },
                 onOpenRoleSwitcher = { showRoleSheet = true }
             )
@@ -449,14 +539,45 @@ fun AppNavigation() {
             ClientExploreScreen(
                 currentRoute = currentRoute,
                 onTabSelected = ::openTab,
+                onBack = ::backToRoleHome,
                 onBookWith = { specialistId ->
-                    val specialist = DemoData.specialistById(specialistId)
-                    val serviceId = DemoData.services
-                        .firstOrNull { it.name == specialist.specialty }?.id
-                        ?: DemoData.services.first().id
-                    navController.navigate(Routes.serviceCheckout(specialistId, serviceId))
+                    navController.navigate(Routes.booking(specialistId))
                 }
             )
+        }
+
+        composable("${Routes.CLIENT_BOOKING}/{specialistId}") { entry ->
+            val specialistId = entry.arguments?.getString("specialistId").orEmpty()
+            val specialist = DemoData.specialistById(specialistId)
+            BookingScreen(
+                specialist = specialist,
+                onBack = { navController.popBackStack() },
+                onConfirm = { service, dayId, time ->
+                    viewModel.bookGuestAppointment(specialist, service, dayId, time)
+                    navController.navigate(Routes.success(SUCCESS_BOOKING)) {
+                        popUpTo(startRouteForRole(UserRole.CLIENT))
+                    }
+                }
+            )
+        }
+
+        composable("${Routes.CLIENT_REVIEW}/{appointmentId}") { entry ->
+            val id = entry.arguments?.getString("appointmentId").orEmpty()
+            val appointment = viewModel.appointmentById(id)
+            if (appointment == null) {
+                navController.popBackStack()
+            } else {
+                ReviewScreen(
+                    appointment = appointment,
+                    onBack = { navController.popBackStack() },
+                    onSubmit = {
+                        viewModel.submitReview(id)
+                        navController.navigate(Routes.success(SUCCESS_REVIEW)) {
+                            popUpTo(startRouteForRole(UserRole.CLIENT))
+                        }
+                    }
+                )
+            }
         }
 
         composable(Routes.CLIENT_HISTORY) {
@@ -464,7 +585,11 @@ fun AppNavigation() {
                 upcoming = state.clientUpcoming,
                 past = state.clientHistory,
                 currentRoute = currentRoute,
+                guestName = state.guestName,
+                reviewedIds = state.reviewedAppointmentIds,
                 onTabSelected = ::openTab,
+                onBack = ::backToRoleHome,
+                onReview = { id -> navController.navigate(Routes.review(id)) },
                 onExplore = { openTab(Routes.CLIENT_EXPLORE) }
             )
         }
@@ -474,7 +599,10 @@ fun AppNavigation() {
                 upcoming = state.clientUpcoming,
                 past = state.clientHistory,
                 currentRoute = currentRoute,
+                guestName = state.guestName,
+                guestInitials = state.guestInitials,
                 onTabSelected = ::openTab,
+                onBack = ::backToRoleHome,
                 onOpenLegal = { navController.navigate(Routes.LEGAL) },
                 onSignOut = ::signOutToWelcome,
                 onDeleteAccount = ::signOutToWelcome,
@@ -489,7 +617,9 @@ fun AppNavigation() {
                 onTabSelected = ::openTab,
                 onOpenCheckIn = { openTab(Routes.RECEPTION_CHECKIN) },
                 onOpenWalkIn = { openTab(Routes.RECEPTION_WALKIN) },
-                onOpenRoleSwitcher = { showRoleSheet = true }
+                onOpenRoleSwitcher = { showRoleSheet = true },
+                unreadNotifications = state.unreadNotifications,
+                onOpenNotifications = { navController.navigate(Routes.NOTIFICATIONS) }
             )
         }
 
@@ -498,6 +628,7 @@ fun AppNavigation() {
                 state = state,
                 currentRoute = currentRoute,
                 onTabSelected = ::openTab,
+                onBack = ::backToRoleHome,
                 onMarkArrival = viewModel::markArrival,
                 onOpenWalkIn = { openTab(Routes.RECEPTION_WALKIN) }
             )
@@ -507,6 +638,7 @@ fun AppNavigation() {
             ReceptionWalkInScreen(
                 currentRoute = currentRoute,
                 onTabSelected = ::openTab,
+                onBack = ::backToRoleHome,
                 onRegister = { clientName, service, specialist, station ->
                     viewModel.registerWalkIn(clientName, service, specialist, station)
                     openTab(Routes.RECEPTION_CHECKIN)
@@ -519,21 +651,25 @@ fun AppNavigation() {
                 currentRoute = currentRoute,
                 onTabSelected = ::openTab,
                 onOpenSpecialists = { openTab(Routes.ADMIN_SPECIALISTS) },
-                onOpenRoleSwitcher = { showRoleSheet = true }
+                onOpenRoleSwitcher = { showRoleSheet = true },
+                unreadNotifications = state.unreadNotifications,
+                onOpenNotifications = { navController.navigate(Routes.NOTIFICATIONS) }
             )
         }
 
         composable(Routes.ADMIN_SPECIALISTS) {
             AdminSpecialistsScreen(
                 currentRoute = currentRoute,
-                onTabSelected = ::openTab
+                onTabSelected = ::openTab,
+                onBack = ::backToRoleHome
             )
         }
 
         composable(Routes.ADMIN_REPORTS) {
             AdminReportsScreen(
                 currentRoute = currentRoute,
-                onTabSelected = ::openTab
+                onTabSelected = ::openTab,
+                onBack = ::backToRoleHome
             )
         }
     }
@@ -545,6 +681,13 @@ fun AppNavigation() {
                 showRoleSheet = false
                 viewModel.setRole(role)
                 goToRoleStart(role)
+            },
+            onResetDemo = {
+                showRoleSheet = false
+                viewModel.resetDemo()
+                navController.navigate(Routes.WELCOME) {
+                    popUpTo(Routes.WELCOME) { inclusive = true }
+                }
             },
             onDismiss = { showRoleSheet = false }
         )

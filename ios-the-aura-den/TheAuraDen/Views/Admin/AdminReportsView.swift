@@ -4,6 +4,7 @@ import SwiftUI
 struct AdminReportsView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
+    let onBack: () -> Void
 
     private var recurringRent: Int {
         DemoData.revenueByPlan.reduce(0) { $0 + $1.amount }
@@ -22,7 +23,8 @@ struct AdminReportsView: View {
             AuraHeader(
                 title: "Reportes",
                 eyebrow: "Modo administrador",
-                subtitle: "Agosto 2025 · cierre parcial"
+                subtitle: "Agosto 2025 · cierre parcial",
+                onBack: onBack
             )
         } content: {
             ScrollView {

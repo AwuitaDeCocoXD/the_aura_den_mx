@@ -5,6 +5,7 @@ import SwiftUI
 struct RoleSwitcherSheet: View {
     let currentRole: UserRole
     let onSelect: (UserRole) -> Void
+    let onResetDemo: () -> Void
 
     @Environment(\.dismiss) private var dismiss
 
@@ -41,14 +42,60 @@ struct RoleSwitcherSheet: View {
                     roleRow(role)
                         .padding(.bottom, 10)
                 }
+
+                resetRow
+                    .padding(.top, 6)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(AuraPalette.white)
-        .presentationDetents([.height(470)])
+        .presentationDetents([.height(560)])
         .presentationDragIndicator(.hidden)
+    }
+
+    private var resetRow: some View {
+        Button {
+            AuraHaptics.tap()
+            onResetDemo()
+            dismiss()
+        } label: {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(AuraPalette.white)
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 19))
+                        .foregroundStyle(AuraPalette.navy)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Reiniciar demo")
+                        .font(AuraFont.titleMedium())
+                        .fontWeight(.semibold)
+                        .foregroundStyle(AuraPalette.ink)
+                    Text("Deja todas las pantallas como al abrir la app")
+                        .font(AuraFont.bodySmall())
+                        .foregroundStyle(AuraPalette.inkMuted)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity)
+            .background(
+                AuraPalette.sandSoft.opacity(0.55),
+                in: .rect(cornerRadius: 18)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 18)
+                    .strokeBorder(AuraPalette.divider, lineWidth: 1)
+            }
+        }
+        .buttonStyle(PressableButtonStyle())
     }
 
     private func roleRow(_ role: UserRole) -> some View {

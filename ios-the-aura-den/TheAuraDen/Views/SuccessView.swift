@@ -17,11 +17,25 @@ struct SuccessView: View {
             store.agendaForSelectedDay.last.map {
                 "\($0.clientName) · \($0.time) · \($0.stationName)"
             }
+        case .booking:
+            store.clientAppointment.map {
+                "\($0.specialistName) · \($0.dateLabel) · \($0.time)"
+            }
+        case .review:
+            nil
         }
     }
 
+    private var primaryLabel: String {
+        kind.isGuestFlow ? "Ver mi cita" : "Volver al inicio"
+    }
+
     private var secondaryLabel: String {
-        kind == .appointment ? "Ver mi agenda" : "Ver mis espacios"
+        switch kind {
+        case .appointment: "Ver mi agenda"
+        case .booking, .review: "Explorar más especialistas"
+        default: "Ver mis espacios"
+        }
     }
 
     var body: some View {
@@ -77,7 +91,7 @@ struct SuccessView: View {
 
                 VStack(spacing: 10) {
                     AuraPrimaryButton(
-                        title: "Volver al inicio",
+                        title: primaryLabel,
                         tint: AuraPalette.white,
                         foreground: AuraPalette.blue,
                         action: onPrimary

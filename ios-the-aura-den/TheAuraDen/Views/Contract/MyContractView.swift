@@ -122,7 +122,7 @@ struct MyContractView: View {
 
                         Spacer().frame(height: 20)
 
-                        Text("Este contrato es una simulación visual sin validez legal. \(AuraCopy.brandName) · \(AuraCopy.addressLine1), \(AuraCopy.addressLine2)")
+                        Text("\(AuraCopy.brandName) · \(AuraCopy.addressLine1), \(AuraCopy.addressLine2)")
                             .font(AuraFont.bodySmall())
                             .foregroundStyle(AuraPalette.inkMuted)
                             .fixedSize(horizontal: false, vertical: true)

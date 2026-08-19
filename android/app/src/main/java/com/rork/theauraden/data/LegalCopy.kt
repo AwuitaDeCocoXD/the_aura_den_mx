@@ -3,22 +3,15 @@ package com.rork.theauraden.data
 /** A titled block of legal text. */
 data class LegalSection(val title: String, val body: String)
 
-/**
- * Placeholder legal copy for the demo. The wording is illustrative only and has to be
- * replaced by the text the client's lawyer approves before publishing.
- */
+/** Terms of service and privacy notice shown inside the app. */
 object LegalCopy {
-
-    const val DISCLAIMER =
-        "Texto de ejemplo para la demo. El contenido final debe ser revisado y " +
-            "aprobado por el área legal de The Aura Den antes de publicar la app."
 
     val terms: List<LegalSection> = listOf(
         LegalSection(
             "1. Sobre este documento",
             "Estos términos regulan el uso de la aplicación de The Aura Den, un espacio " +
-                "de coworking de belleza ubicado en Av. Álvaro Obregón 128, Roma Norte, " +
-                "Ciudad de México. Al crear una cuenta aceptas lo aquí descrito."
+                "de coworking de belleza ubicado en Cuauhtémoc #1473, Piso 2, Benito " +
+                "Juárez, Ciudad de México. Al crear una cuenta aceptas lo aquí descrito."
         ),
         LegalSection(
             "2. Quién puede usar la app",
@@ -60,8 +53,8 @@ object LegalCopy {
     val privacy: List<LegalSection> = listOf(
         LegalSection(
             "1. Responsable de tus datos",
-            "The Aura Den, con domicilio en Av. Álvaro Obregón 128, Roma Norte, Ciudad de " +
-                "México, es responsable del tratamiento de los datos personales que nos " +
+            "The Aura Den, con domicilio en Cuauhtémoc #1473, Piso 2, Benito Juárez, Ciudad " +
+                "de México, es responsable del tratamiento de los datos personales que nos " +
                 "compartes a través de esta aplicación."
         ),
         LegalSection(

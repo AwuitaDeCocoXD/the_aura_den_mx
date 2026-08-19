@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rork.theauraden.data.AuraCopy
 import com.rork.theauraden.data.DemoData
 import com.rork.theauraden.data.SpecialistProfile
 import com.rork.theauraden.data.UserRole
@@ -50,6 +51,7 @@ private val specialtyFilters = listOf("Todas", "Uñas", "Uñas acrílicas", "Pes
 fun ClientExploreScreen(
     currentRoute: String,
     onTabSelected: (String) -> Unit,
+    onBack: () -> Unit,
     onBookWith: (specialistId: String) -> Unit
 ) {
     var filter by remember { mutableStateOf(specialtyFilters.first()) }
@@ -63,8 +65,9 @@ fun ClientExploreScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
+                onBack = onBack,
                 title = "Explorar",
-                eyebrow = "The Aura Den · Roma Norte",
+                eyebrow = "The Aura Den · ${AuraCopy.NEIGHBORHOOD}",
                 subtitle = "Elige con quién quieres consentirte"
             )
         }

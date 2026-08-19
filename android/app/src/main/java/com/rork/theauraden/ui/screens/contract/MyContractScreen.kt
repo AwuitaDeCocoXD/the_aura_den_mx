@@ -247,8 +247,7 @@ fun MyContractScreen(
 
             Spacer(Modifier.height(20.dp))
             Text(
-                text = "Este contrato es una simulación visual sin validez legal. " +
-                    "${AuraCopy.BRAND_NAME} · ${AuraCopy.ADDRESS_LINE_1}, " +
+                text = "${AuraCopy.BRAND_NAME} · ${AuraCopy.ADDRESS_LINE_1}, " +
                     AuraCopy.ADDRESS_LINE_2,
                 style = MaterialTheme.typography.bodySmall,
                 color = AuraInkMuted

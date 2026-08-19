@@ -1,13 +1,17 @@
 import SwiftUI
 
-/// Entry point: unauthenticated flow, then the role shell with the brand bottom bar.
+/// Entry point: brand splash, unauthenticated flow, then the role shell.
 struct RootView: View {
     @State private var store = DemoStore()
     @State private var showRoleSheet = false
+    @State private var showSplash = true
 
     var body: some View {
         Group {
-            if store.isSignedIn {
+            if showSplash {
+                SplashView { showSplash = false }
+                    .transition(.opacity)
+            } else if store.isSignedIn {
                 RoleShellView(showRoleSheet: $showRoleSheet)
                     .transition(.opacity)
             } else {
@@ -16,11 +20,16 @@ struct RootView: View {
             }
         }
         .environment(store)
+        .animation(.easeInOut(duration: 0.32), value: showSplash)
         .animation(.easeInOut(duration: 0.28), value: store.isSignedIn)
         .sheet(isPresented: $showRoleSheet) {
-            RoleSwitcherSheet(currentRole: store.role) { role in
-                store.role = role
-            }
+            RoleSwitcherSheet(
+                currentRole: store.role,
+                onSelect: { role in store.role = role },
+                onResetDemo: {
+                    store.resetDemo()
+                }
+            )
         }
         .tint(AuraPalette.blue)
     }
@@ -30,7 +39,7 @@ struct RootView: View {
 
 private enum AuthRoute: Hashable {
     case login
-    case createAccount
+    case createAccount(SignUpMode)
     case legal
     case contractRead
     case contractSign
@@ -44,7 +53,8 @@ private struct AuthFlowView: View {
     var body: some View {
         NavigationStack(path: $path) {
             WelcomeView(
-                onCreateAccount: { path.append(.createAccount) },
+                onCreateAccount: { path.append(.createAccount(.specialist)) },
+                onCreateGuestAccount: { path.append(.createAccount(.guest)) },
                 onSignIn: { path.append(.login) }
             )
             .toolbar(.hidden, for: .navigationBar)
@@ -53,26 +63,36 @@ private struct AuthFlowView: View {
                 case .login:
                     LoginView(
                         onBack: { path.removeLast() },
-                        onSignedIn: { signIn() },
-                        onCreateAccount: { path.append(.createAccount) }
+                        onSignedIn: { signIn(as: .specialist) },
+                        onCreateAccount: { path.append(.createAccount(.specialist)) },
+                        onCreateGuestAccount: { path.append(.createAccount(.guest)) }
                     )
-                case .createAccount:
+
+                case .createAccount(let mode):
                     CreateAccountView(
+                        initialMode: mode,
                         onBack: { path.removeLast() },
                         onRegistered: { name in
                             store.startContractFlow(name: name)
                             path.append(.contractRead)
                         },
+                        onRegisteredGuest: { name in
+                            store.startGuestAccount(name: name)
+                            signIn(as: .client)
+                        },
                         onSignIn: { path.append(.login) },
                         onOpenLegal: { path.append(.legal) }
                     )
+
                 case .legal:
                     LegalView(onBack: { path.removeLast() })
+
                 case .contractRead:
                     ContractReadView(
                         onBack: { path.removeLast() },
                         onContinue: { path.append(.contractSign) }
                     )
+
                 case .contractSign:
                     ContractSignView(
                         onBack: { path.removeLast() },
@@ -81,18 +101,19 @@ private struct AuthFlowView: View {
                             path.append(.contractSigned)
                         }
                     )
+
                 case .contractSigned:
                     if let contract = store.signedContract {
-                        ContractSignedView(contract: contract) { signIn() }
+                        ContractSignedView(contract: contract) { signIn(as: .specialist) }
                     }
                 }
             }
         }
     }
 
-    private func signIn() {
+    private func signIn(as role: UserRole) {
         AuraHaptics.success()
-        store.role = .specialist
+        store.role = role
         store.isSignedIn = true
         path.removeAll()
     }
@@ -113,6 +134,7 @@ private struct RoleShellView: View {
                 .toolbar(.hidden, for: .navigationBar)
                 .navigationDestination(for: AuraRoute.self, destination: destination)
         }
+        .onAppear { currentRoute = startRouteForRole(store.role) }
         .onChange(of: store.role) { _, role in
             path.removeAll()
             currentRoute = startRouteForRole(role)
@@ -122,6 +144,11 @@ private struct RoleShellView: View {
     private func openTab(_ route: AuraTabRoute) {
         path.removeAll()
         currentRoute = route
+    }
+
+    /// Back arrow of a secondary tab: always returns to the home of the active role.
+    private func backToRoleHome() {
+        openTab(startRouteForRole(store.role))
     }
 
     private func goToRoleStart() {
@@ -145,6 +172,7 @@ private struct RoleShellView: View {
                 onTabSelected: openTab,
                 onOpenProfile: { path.append(.profile) },
                 onOpenRoleSwitcher: { showRoleSheet = true },
+                onOpenNotifications: { path.append(.notifications) },
                 onOpenAgenda: { openTab(.specialistAgenda) },
                 onOpenSpaces: { openTab(.specialistSpaces) },
                 onScheduleClient: { path.append(.scheduleClient) },
@@ -156,6 +184,7 @@ private struct RoleShellView: View {
             AgendaView(
                 currentRoute: currentRoute,
                 onTabSelected: openTab,
+                onBack: backToRoleHome,
                 onOpenAppointment: { path.append(.appointmentDetail(id: $0)) },
                 onScheduleClient: { path.append(.scheduleClient) }
             )
@@ -164,6 +193,7 @@ private struct RoleShellView: View {
             SpacesView(
                 currentRoute: currentRoute,
                 onTabSelected: openTab,
+                onBack: backToRoleHome,
                 onOpenStation: { path.append(.reserveSpace(stationID: $0)) },
                 onOpenMemberships: { path.append(.memberships) },
                 onSignContract: { path.append(.contractRead) }
@@ -173,6 +203,7 @@ private struct RoleShellView: View {
             PaymentsView(
                 currentRoute: currentRoute,
                 onTabSelected: openTab,
+                onBack: backToRoleHome,
                 onChangePlan: { path.append(.memberships) },
                 onOpenReceipt: { path.append(.receipt(paymentID: $0)) }
             )
@@ -185,6 +216,7 @@ private struct RoleShellView: View {
                 onPayService: { specialistID, serviceID in
                     path.append(.serviceCheckout(specialistID: specialistID, serviceID: serviceID))
                 },
+                onOpenNotifications: { path.append(.notifications) },
                 onOpenRoleSwitcher: { showRoleSheet = true }
             )
 
@@ -192,15 +224,16 @@ private struct RoleShellView: View {
             ClientExploreView(
                 currentRoute: currentRoute,
                 onTabSelected: openTab,
-                onBookWith: { specialistID, serviceID in
-                    path.append(.serviceCheckout(specialistID: specialistID, serviceID: serviceID))
-                }
+                onBack: backToRoleHome,
+                onBookWith: { path.append(.booking(specialistID: $0)) }
             )
 
         case .clientHistory:
             ClientHistoryView(
                 currentRoute: currentRoute,
                 onTabSelected: openTab,
+                onBack: backToRoleHome,
+                onReview: { path.append(.review(appointmentID: $0)) },
                 onExplore: { openTab(.clientExplore) }
             )
 
@@ -208,6 +241,7 @@ private struct RoleShellView: View {
             ClientProfileView(
                 currentRoute: currentRoute,
                 onTabSelected: openTab,
+                onBack: backToRoleHome,
                 onOpenLegal: { path.append(.legal) },
                 onSignOut: { signOut() },
                 onDeleteAccount: { signOut() },
@@ -220,13 +254,15 @@ private struct RoleShellView: View {
                 onTabSelected: openTab,
                 onOpenCheckIn: { openTab(.receptionCheckIn) },
                 onOpenWalkIn: { openTab(.receptionWalkIn) },
-                onOpenRoleSwitcher: { showRoleSheet = true }
+                onOpenRoleSwitcher: { showRoleSheet = true },
+                onOpenNotifications: { path.append(.notifications) }
             )
 
         case .receptionCheckIn:
             ReceptionCheckInView(
                 currentRoute: currentRoute,
                 onTabSelected: openTab,
+                onBack: backToRoleHome,
                 onOpenWalkIn: { openTab(.receptionWalkIn) }
             )
 
@@ -234,6 +270,7 @@ private struct RoleShellView: View {
             ReceptionWalkInView(
                 currentRoute: currentRoute,
                 onTabSelected: openTab,
+                onBack: backToRoleHome,
                 onRegistered: { openTab(.receptionCheckIn) }
             )
 
@@ -242,14 +279,23 @@ private struct RoleShellView: View {
                 currentRoute: currentRoute,
                 onTabSelected: openTab,
                 onOpenSpecialists: { openTab(.adminSpecialists) },
-                onOpenRoleSwitcher: { showRoleSheet = true }
+                onOpenRoleSwitcher: { showRoleSheet = true },
+                onOpenNotifications: { path.append(.notifications) }
             )
 
         case .adminSpecialists:
-            AdminSpecialistsView(currentRoute: currentRoute, onTabSelected: openTab)
+            AdminSpecialistsView(
+                currentRoute: currentRoute,
+                onTabSelected: openTab,
+                onBack: backToRoleHome
+            )
 
         case .adminReports:
-            AdminReportsView(currentRoute: currentRoute, onTabSelected: openTab)
+            AdminReportsView(
+                currentRoute: currentRoute,
+                onTabSelected: openTab,
+                onBack: backToRoleHome
+            )
         }
     }
 
@@ -299,6 +345,34 @@ private struct RoleShellView: View {
         case .legal:
             LegalView(onBack: { path.removeLast() })
 
+        case .notifications:
+            NotificationsView(onBack: { path.removeLast() })
+
+        case .booking(let specialistID):
+            BookingView(
+                specialistID: specialistID,
+                onBack: { path.removeLast() },
+                onConfirm: { service, dayID, time in
+                    store.bookGuestAppointment(
+                        specialist: DemoData.specialist(id: specialistID),
+                        service: service,
+                        dayID: dayID,
+                        time: time
+                    )
+                    path = [.success(.booking)]
+                }
+            )
+
+        case .review(let appointmentID):
+            ReviewView(
+                appointmentID: appointmentID,
+                onBack: { path.removeLast() },
+                onSubmit: {
+                    store.submitReview(appointmentID: appointmentID)
+                    path = [.success(.review)]
+                }
+            )
+
         case .contractRead:
             ContractReadView(
                 onBack: { path.removeLast() },
@@ -339,7 +413,11 @@ private struct RoleShellView: View {
                 onPrimary: { goToRoleStart() },
                 onSecondary: {
                     path.removeAll()
-                    currentRoute = kind == .appointment ? .specialistAgenda : .specialistSpaces
+                    switch kind {
+                    case .appointment: currentRoute = .specialistAgenda
+                    case .booking, .review: currentRoute = .clientExplore
+                    default: currentRoute = .specialistSpaces
+                    }
                 }
             )
 

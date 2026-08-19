@@ -1,23 +1,15 @@
 package com.rork.theauraden.data
 
-/**
- * Placeholder rental agreement shown before a specialist can rent a station.
- * The wording is sample text: it has no legal validity and must be replaced by
- * the contract reviewed by the coworking's lawyer.
- */
+/** Rental agreement shown before a specialist can rent a station. */
 object ContractCopy {
 
     const val TITLE = "Contrato de Renta de Espacio"
     const val SUBTITLE = "The Aura Den · Beauty coworking"
 
-    const val PARTIES = "Celebrado entre THE AURA DEN, con domicilio en Av. Álvaro Obregón 128, " +
-        "Roma Norte, Ciudad de México, en adelante \"el coworking\", y la especialista cuyo " +
-        "nombre y firma constan al calce, en adelante \"la especialista\", al tenor de las " +
-        "declaraciones y cláusulas siguientes."
-
-    const val DISCLAIMER = "Texto de ejemplo. Este contrato es una simulación visual para la " +
-        "demostración de la app y no tiene validez legal. La versión definitiva deberá ser " +
-        "redactada y revisada por un abogado antes de ponerse en operación."
+    const val PARTIES = "Celebrado entre THE AURA DEN, con domicilio en Cuauhtémoc #1473, " +
+        "Piso 2, Benito Juárez, Ciudad de México, en adelante \"el coworking\", y la " +
+        "especialista cuyo nombre y firma constan al calce, en adelante \"la especialista\", " +
+        "al tenor de las declaraciones y cláusulas siguientes."
 
     const val CLOSING = "Leído que fue el presente contrato por ambas partes y enteradas de su " +
         "contenido y alcance legal, lo firman de conformidad en la Ciudad de México, en la " +

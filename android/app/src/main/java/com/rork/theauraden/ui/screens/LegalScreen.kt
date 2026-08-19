@@ -78,28 +78,7 @@ fun LegalScreen(
                 }
             }
 
-            Spacer(Modifier.height(18.dp))
-            AuraCard(containerColor = AuraCream) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Info,
-                        contentDescription = null,
-                        tint = AuraSand,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = LegalCopy.DISCLAIMER,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AuraInkMuted
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(22.dp))
             Text(
                 text = tab,
                 style = MaterialTheme.typography.headlineSmall,

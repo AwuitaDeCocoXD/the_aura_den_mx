@@ -5,6 +5,7 @@ struct LoginView: View {
     let onBack: () -> Void
     let onSignedIn: () -> Void
     let onCreateAccount: () -> Void
+    let onCreateGuestAccount: () -> Void
 
     @State private var identifier: String = "juanita@correo.com"
     @State private var password: String = "auraden2025"
@@ -58,6 +59,11 @@ struct LoginView: View {
                         .foregroundStyle(AuraPalette.inkMuted)
 
                     Button("Crear cuenta de especialista", action: onCreateAccount)
+                        .font(AuraFont.labelLarge())
+                        .foregroundStyle(AuraPalette.blue)
+                        .padding(.vertical, 10)
+
+                    Button("Crear cuenta de invitada", action: onCreateGuestAccount)
                         .font(AuraFont.labelLarge())
                         .foregroundStyle(AuraPalette.blue)
                         .padding(.vertical, 10)

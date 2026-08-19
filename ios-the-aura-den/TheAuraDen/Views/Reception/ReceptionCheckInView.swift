@@ -9,6 +9,7 @@ private let checkInFilters = [allFilter, pendingFilter, attendedFilter]
 struct ReceptionCheckInView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
+    let onBack: () -> Void
     let onOpenWalkIn: () -> Void
 
     @Environment(DemoStore.self) private var store
@@ -32,7 +33,8 @@ struct ReceptionCheckInView: View {
             AuraHeader(
                 title: "Check-in de hoy",
                 eyebrow: "Recepción",
-                subtitle: AuraCopy.todayLabel
+                subtitle: AuraCopy.todayLabel,
+                onBack: onBack
             )
         } content: {
             ScrollView {

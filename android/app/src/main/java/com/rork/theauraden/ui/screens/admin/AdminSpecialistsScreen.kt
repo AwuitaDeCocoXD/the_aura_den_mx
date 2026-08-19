@@ -20,11 +20,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CreditCard
-import androidx.compose.material.icons.rounded.Draw
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.PriorityHigh
 import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -74,7 +72,8 @@ private val paymentFilters = listOf("Todas", "Al corriente", "Con adeudo")
 @Composable
 fun AdminSpecialistsScreen(
     currentRoute: String,
-    onTabSelected: (String) -> Unit
+    onTabSelected: (String) -> Unit,
+    onBack: () -> Unit
 ) {
     var filter by remember { mutableStateOf(paymentFilters.first()) }
     val specialists = DemoData.specialists.filter {
@@ -92,6 +91,7 @@ fun AdminSpecialistsScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
+                onBack = onBack,
                 title = "Rentistas",
                 eyebrow = "Modo administrador",
                 subtitle = "${DemoData.specialists.size} especialistas activas",
@@ -315,47 +315,6 @@ private fun PendingChargeRow(charge: PendingCharge) {
     }
 }
 
-/** Contract health of a renter: signed with folio, or still pending signature. */
-@Composable
-private fun ContractStatusRow(specialist: SpecialistProfile) {
-    val signed = specialist.contractSigned
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                if (signed) StatusGreenSoft.copy(alpha = 0.6f) else StatusAmberSoft,
-                RoundedCornerShape(16.dp)
-            )
-            .padding(horizontal = 13.dp, vertical = 11.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = if (signed) Icons.Rounded.Verified else Icons.Rounded.Draw,
-            contentDescription = null,
-            tint = if (signed) StatusGreen else StatusAmber,
-            modifier = Modifier.size(17.dp)
-        )
-        Spacer(Modifier.width(9.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = if (signed) "Contrato firmado" else "Pendiente de firma",
-                style = MaterialTheme.typography.labelLarge,
-                color = if (signed) StatusGreen else StatusAmber
-            )
-            Text(
-                text = if (signed) {
-                    "Folio ${specialist.contractFolio.orEmpty()} · " +
-                        specialist.contractDateLabel.orEmpty()
-                } else {
-                    "No puede reservar estaciones hasta firmar"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = AuraInkMuted
-            )
-        }
-    }
-}
-
 @Composable
 private fun SpecialistRow(
     specialist: SpecialistProfile,
@@ -405,9 +364,6 @@ private fun SpecialistRow(
                     icon = if (owes) Icons.Rounded.PriorityHigh else null
                 )
             }
-
-            Spacer(Modifier.height(14.dp))
-            ContractStatusRow(specialist = specialist)
 
             Spacer(Modifier.height(16.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {

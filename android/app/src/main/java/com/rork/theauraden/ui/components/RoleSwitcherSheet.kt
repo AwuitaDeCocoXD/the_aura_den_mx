@@ -19,6 +19,7 @@ import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ContentCut
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.SupportAgent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -52,6 +53,7 @@ import com.rork.theauraden.ui.theme.AuraYellow
 fun RoleSwitcherSheet(
     currentRole: UserRole,
     onSelect: (UserRole) -> Unit,
+    onResetDemo: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -155,6 +157,48 @@ fun RoleSwitcherSheet(
                                 tint = AuraBlue
                             )
                         }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(6.dp))
+            Surface(
+                onClick = onResetDemo,
+                shape = RoundedCornerShape(18.dp),
+                color = AuraSandSoft.copy(alpha = 0.55f),
+                border = BorderStroke(1.dp, AuraDivider),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(AuraWhite, RoundedCornerShape(14.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Restore,
+                            contentDescription = null,
+                            tint = AuraNavy,
+                            modifier = Modifier.size(21.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(14.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Reiniciar demo",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AuraInk
+                        )
+                        Text(
+                            text = "Deja todas las pantallas como al abrir la app",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = AuraInkMuted
+                        )
                     }
                 }
             }

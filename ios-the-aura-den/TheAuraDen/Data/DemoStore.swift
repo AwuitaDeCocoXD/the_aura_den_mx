@@ -18,6 +18,13 @@ final class DemoStore {
     /// Nil while the specialist has not signed her rental agreement yet.
     var signedContract: SignedContract? = DemoData.signedContract
     var contractSignerName: String = AuraCopy.currentUser
+    /// Name of the guest using the app. Changes when a brand new guest signs up.
+    var guestName: String = AuraCopy.clientUser
+    /// True right after a guest signs up: she has no appointments and no history yet.
+    var isNewGuest: Bool = false
+    var readNotificationIDs: Set<String> = []
+    /// Appointment ids the guest already rated.
+    var reviewedAppointmentIDs: Set<String> = []
 
     private var folioCounter = 3400
 
@@ -59,6 +66,28 @@ final class DemoStore {
         guard plan.hours > 0 else { return 0 }
         return min(Double(profile.hoursUsed) / Double(plan.hours), 1)
     }
+
+    var guestInitials: String {
+        let letters = guestName
+            .split(separator: " ")
+            .prefix(2)
+            .compactMap { $0.first }
+            .map(String.init)
+            .joined()
+            .uppercased()
+        return letters.isEmpty ? "AD" : letters
+    }
+
+    var notifications: [AppNotification] {
+        DemoData.notifications(for: role).map { notice in
+            guard readNotificationIDs.contains(notice.id) else { return notice }
+            var seen = notice
+            seen.unread = false
+            return seen
+        }
+    }
+
+    var unreadNotifications: Int { notifications.count(where: \.unread) }
 
     // MARK: - Lookups
 
@@ -245,6 +274,89 @@ final class DemoStore {
     func signOut() {
         isSignedIn = false
         role = .specialist
+    }
+
+    // MARK: - Guest account
+
+    /// A brand new guest account: no upcoming appointment and no past visits.
+    func startGuestAccount(name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty { guestName = trimmed }
+        role = .client
+        isNewGuest = true
+        clientAppointment = nil
+        clientHistory = []
+    }
+
+    /// The guest books her own appointment from Explorar.
+    @discardableResult
+    func bookGuestAppointment(
+        specialist: SpecialistProfile,
+        service: ClientService,
+        dayID: String,
+        time: String
+    ) -> Appointment {
+        let day = DemoData.day(id: dayID)
+        let needsLashBed = service.name.contains("Pestañas")
+        let station = DemoData.stations.first {
+            needsLashBed ? $0.kind == "Pestañas" : $0.kind != "Pestañas"
+        } ?? DemoData.stations[0]
+
+        let appointment = Appointment(
+            id: "guest-\(UUID().uuidString)",
+            clientName: guestName,
+            specialistName: specialist.name,
+            service: service.name,
+            dayID: dayID,
+            dateLabel: day.fullLabel,
+            time: time,
+            stationName: station.name,
+            status: .confirmed,
+            notes: nil,
+            price: service.price
+        )
+        clientAppointment = appointment
+        isNewGuest = false
+        appointments.append(appointment)
+        return appointment
+    }
+
+    // MARK: - Notices and reviews
+
+    func markNotificationsRead() {
+        readNotificationIDs.formUnion(DemoData.notifications(for: role).map(\.id))
+    }
+
+    /// A completed visit the guest has not rated yet.
+    var reviewableAppointment: Appointment? {
+        clientHistory.first { $0.status == .completed && !reviewedAppointmentIDs.contains($0.id) }
+    }
+
+    /// Stores the guest's rating so the same visit is not offered again.
+    func submitReview(appointmentID: String) {
+        reviewedAppointmentIDs.insert(appointmentID)
+    }
+
+    /// Puts every screen back to its opening state so the demo can be shown again.
+    func resetDemo() {
+        folioCounter = 3400
+        role = .specialist
+        isSignedIn = false
+        profile = DemoData.currentSpecialist
+        appointments = DemoData.appointments
+        checkIns = DemoData.checkIns
+        payments = DemoData.paymentHistory
+        selectedDayID = "tue"
+        activePlanID = "residente"
+        clientAppointment = DemoData.appointments.first
+        clientHistory = DemoData.clientHistory
+        lastReservation = nil
+        signedContract = DemoData.signedContract
+        contractSignerName = AuraCopy.currentUser
+        guestName = AuraCopy.clientUser
+        isNewGuest = false
+        readNotificationIDs = []
+        reviewedAppointmentIDs = []
     }
 
     private func nextFolio() -> String {

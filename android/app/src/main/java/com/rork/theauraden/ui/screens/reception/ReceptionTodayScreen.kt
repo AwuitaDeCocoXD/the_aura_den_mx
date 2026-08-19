@@ -37,6 +37,7 @@ import com.rork.theauraden.data.StationStatus
 import com.rork.theauraden.data.UserRole
 import com.rork.theauraden.ui.components.AuraCard
 import com.rork.theauraden.ui.components.AuraHeader
+import com.rork.theauraden.ui.components.NotificationBell
 import com.rork.theauraden.ui.components.AuraSecondaryButton
 import com.rork.theauraden.ui.components.AuraTabScaffold
 import com.rork.theauraden.ui.components.MetricTile
@@ -61,7 +62,9 @@ fun ReceptionTodayScreen(
     onTabSelected: (String) -> Unit,
     onOpenCheckIn: () -> Unit,
     onOpenWalkIn: () -> Unit,
-    onOpenRoleSwitcher: () -> Unit
+    onOpenRoleSwitcher: () -> Unit,
+    unreadNotifications: Int,
+    onOpenNotifications: () -> Unit
 ) {
     val waiting = state.checkIns.count { it.status == CheckInStatus.WAITING }
     val pending = state.checkIns.count { it.status == CheckInStatus.PENDING }
@@ -76,18 +79,25 @@ fun ReceptionTodayScreen(
                 eyebrow = "Recepción",
                 subtitle = "${AuraCopy.TODAY_LABEL} · 11:42 am",
                 trailing = {
-                    Box(
-                        modifier = Modifier
-                            .size(42.dp)
-                            .background(AuraWhite.copy(alpha = 0.14f), CircleShape)
-                            .clickable(onClick = onOpenRoleSwitcher),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "RC",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = AuraYellow
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        NotificationBell(
+                            unread = unreadNotifications,
+                            onClick = onOpenNotifications
                         )
+                        Spacer(Modifier.width(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(42.dp)
+                                .background(AuraWhite.copy(alpha = 0.14f), CircleShape)
+                                .clickable(onClick = onOpenRoleSwitcher),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "RC",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = AuraYellow
+                            )
+                        }
                     }
                 }
             )

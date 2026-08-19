@@ -72,22 +72,6 @@ struct ContractReadView: View {
                             signedContract: signedContract
                         )
 
-                        Spacer().frame(height: 16)
-
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: "info.circle.fill")
-                                .font(.system(size: 18))
-                                .foregroundStyle(AuraPalette.sand)
-                            Text(ContractCopy.disclaimer)
-                                .font(AuraFont.bodySmall())
-                                .foregroundStyle(AuraPalette.inkMuted)
-                                .fixedSize(horizontal: false, vertical: true)
-                            Spacer(minLength: 0)
-                        }
-                        .padding(16)
-                        .frame(maxWidth: .infinity)
-                        .background(AuraPalette.cream, in: .rect(cornerRadius: AuraRadius.card))
-
                         Color.clear
                             .frame(height: 26)
                             .id(bottomAnchor)

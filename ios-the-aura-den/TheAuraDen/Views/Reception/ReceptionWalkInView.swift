@@ -4,6 +4,7 @@ import SwiftUI
 struct ReceptionWalkInView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
+    let onBack: () -> Void
     let onRegistered: () -> Void
 
     @Environment(DemoStore.self) private var store
@@ -26,7 +27,8 @@ struct ReceptionWalkInView: View {
             AuraHeader(
                 title: "Registrar walk-in",
                 eyebrow: "Recepción",
-                subtitle: "Clienta sin cita previa"
+                subtitle: "Clienta sin cita previa",
+                onBack: onBack
             )
         } content: {
             ScrollView {

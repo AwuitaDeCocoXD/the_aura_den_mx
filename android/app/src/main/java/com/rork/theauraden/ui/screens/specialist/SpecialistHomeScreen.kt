@@ -38,6 +38,7 @@ import com.rork.theauraden.data.UserRole
 import com.rork.theauraden.ui.components.AuraAvatar
 import com.rork.theauraden.ui.components.AuraCard
 import com.rork.theauraden.ui.components.AuraCardMark
+import com.rork.theauraden.ui.components.NotificationBell
 import com.rork.theauraden.ui.components.AuraHeader
 import com.rork.theauraden.ui.components.AuraTabScaffold
 import com.rork.theauraden.ui.components.Eyebrow
@@ -61,6 +62,8 @@ fun SpecialistHomeScreen(
     onTabSelected: (String) -> Unit,
     onOpenProfile: () -> Unit,
     onOpenRoleSwitcher: () -> Unit,
+    unreadNotifications: Int,
+    onOpenNotifications: () -> Unit,
     onOpenAgenda: () -> Unit,
     onOpenSpaces: () -> Unit,
     onScheduleClient: () -> Unit,
@@ -84,21 +87,28 @@ fun SpecialistHomeScreen(
                 eyebrow = "Bienvenida de vuelta",
                 onBack = null,
                 trailing = {
-                    Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .combinedClickable(
-                                onClick = onOpenProfile,
-                                onLongClick = onOpenRoleSwitcher
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AuraAvatar(
-                            imageUrl = profile.imageUrl,
-                            name = profile.name,
-                            size = 48
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        NotificationBell(
+                            unread = unreadNotifications,
+                            onClick = onOpenNotifications
                         )
+                        Spacer(Modifier.width(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(52.dp)
+                                .clip(CircleShape)
+                                .combinedClickable(
+                                    onClick = onOpenProfile,
+                                    onLongClick = onOpenRoleSwitcher
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AuraAvatar(
+                                imageUrl = profile.imageUrl,
+                                name = profile.name,
+                                size = 48
+                            )
+                        }
                     }
                 },
                 content = {

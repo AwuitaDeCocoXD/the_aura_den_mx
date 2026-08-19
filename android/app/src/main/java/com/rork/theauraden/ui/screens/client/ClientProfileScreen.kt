@@ -60,7 +60,10 @@ fun ClientProfileScreen(
     upcoming: List<Appointment>,
     past: List<Appointment>,
     currentRoute: String,
+    guestName: String,
+    guestInitials: String,
     onTabSelected: (String) -> Unit,
+    onBack: () -> Unit,
     onOpenLegal: () -> Unit,
     onSignOut: () -> Unit,
     onDeleteAccount: () -> Unit,
@@ -75,9 +78,10 @@ fun ClientProfileScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
-                title = AuraCopy.CLIENT_USER,
+                onBack = onBack,
+                title = guestName,
                 eyebrow = "Mi cuenta",
-                subtitle = "Clienta desde junio de 2025",
+                subtitle = "Invitada de ${AuraCopy.BRAND_NAME}",
                 trailing = {
                     Box(
                         modifier = Modifier
@@ -86,7 +90,7 @@ fun ClientProfileScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "LG",
+                            text = guestInitials,
                             style = MaterialTheme.typography.titleMedium,
                             color = AuraYellow
                         )

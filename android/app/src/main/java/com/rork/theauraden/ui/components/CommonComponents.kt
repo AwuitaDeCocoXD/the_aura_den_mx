@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.NotificationsNone
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -848,5 +849,48 @@ fun ChartColumn(
             style = MaterialTheme.typography.labelSmall,
             color = if (highlighted) AuraNavy else AuraInkMuted
         )
+    }
+}
+
+/** Bell that opens the notice centre, with a yellow dot while notices are unread. */
+@Composable
+fun NotificationBell(
+    unread: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    tint: Color = AuraWhite
+) {
+    Box(modifier = modifier.size(44.dp), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(tint.copy(alpha = 0.1f))
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.NotificationsNone,
+                contentDescription = "Avisos",
+                tint = tint,
+                modifier = Modifier.size(21.dp)
+            )
+        }
+        if (unread > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 3.dp, end = 3.dp)
+                    .size(16.dp)
+                    .background(AuraYellow, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = unread.toString(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = AuraNavy
+                )
+            }
+        }
     }
 }

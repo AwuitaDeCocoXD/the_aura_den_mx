@@ -6,6 +6,7 @@ struct SpecialistHomeView: View {
     let onTabSelected: (AuraTabRoute) -> Void
     let onOpenProfile: () -> Void
     let onOpenRoleSwitcher: () -> Void
+    let onOpenNotifications: () -> Void
     let onOpenAgenda: () -> Void
     let onOpenSpaces: () -> Void
     let onScheduleClient: () -> Void
@@ -32,15 +33,21 @@ struct SpecialistHomeView: View {
                 title: profile.name,
                 eyebrow: "Bienvenida de vuelta"
             ) {
-                AuraAvatar(imageURL: profile.imageURL, size: 48, ringColor: .clear)
-                    .frame(width: 52, height: 52)
-                    .contentShape(.circle)
-                    .onTapGesture { onOpenProfile() }
-                    .onLongPressGesture(minimumDuration: 0.45) {
-                        AuraHaptics.tap()
-                        onOpenRoleSwitcher()
-                    }
-                    .accessibilityLabel("Mi perfil")
+                HStack(spacing: 4) {
+                    NotificationBell(
+                        unread: store.unreadNotifications,
+                        action: onOpenNotifications
+                    )
+                    AuraAvatar(imageURL: profile.imageURL, size: 48, ringColor: .clear)
+                        .frame(width: 52, height: 52)
+                        .contentShape(.circle)
+                        .onTapGesture { onOpenProfile() }
+                        .onLongPressGesture(minimumDuration: 0.45) {
+                            AuraHaptics.tap()
+                            onOpenRoleSwitcher()
+                        }
+                        .accessibilityLabel("Mi perfil")
+                }
             } content: {
                 StatusPill(
                     text: "Especialista · \(profile.specialty)",

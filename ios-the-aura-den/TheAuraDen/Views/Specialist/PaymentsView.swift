@@ -4,6 +4,7 @@ import SwiftUI
 struct PaymentsView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
+    let onBack: () -> Void
     let onChangePlan: () -> Void
     let onOpenReceipt: (String) -> Void
 
@@ -22,6 +23,7 @@ struct PaymentsView: View {
             AuraHeader(
                 title: "Mis pagos",
                 eyebrow: store.profile.name,
+                onBack: onBack,
                 content: {
                     StatusPill(
                         text: allPaid ? "Todo al corriente" : "Revisa un cargo",

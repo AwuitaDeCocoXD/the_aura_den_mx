@@ -14,14 +14,18 @@ object AuraImages {
         "https://r2-pub.rork.com/projects/hik0iv6rdfhnc5wzj5h1i/assets/5d7cb0e7-d501-4b4c-9597-3deb1486a380.png"
     const val CAMILA =
         "https://r2-pub.rork.com/projects/hik0iv6rdfhnc5wzj5h1i/assets/1c1e2596-a6c0-4144-998f-7cd070b83420.png"
+    const val STUDIO =
+        "https://r2-pub.rork.com/projects/hik0iv6rdfhnc5wzj5h1i/assets/af8c7c99-618c-425e-9124-1ecdfa7b6347.png"
 }
 
 /** Static copy shared across screens. */
 object AuraCopy {
     const val BRAND_NAME = "The Aura Den"
     const val TAGLINE = "Beauty coworking · CDMX"
-    const val ADDRESS_LINE_1 = "Av. Álvaro Obregón 128"
-    const val ADDRESS_LINE_2 = "Roma Norte, CDMX"
+    const val ADDRESS_LINE_1 = "Cuauhtémoc #1473, Piso 2"
+    const val ADDRESS_LINE_2 = "Benito Juárez, CDMX"
+    const val NEIGHBORHOOD = "Benito Juárez"
+    const val OPENING_HOURS = "Lun a sáb · 9:00 am – 8:00 pm"
     const val TODAY_LABEL = "Martes 18 de agosto"
     const val CURRENT_USER = "Juanita Cruz"
     const val CLIENT_USER = "Lucía Gómez"
@@ -480,6 +484,117 @@ object DemoData {
     val overdueTotal: Int = pendingCharges.filter { it.overdue }.sumOf { it.amount }
 
     val pendingTotal: Int = pendingCharges.sumOf { it.amount }
+
+    /** Notices shown in the bell centre, per role. */
+    val specialistNotifications: List<AppNotification> = listOf(
+        AppNotification(
+            "n1",
+            NotificationKind.APPOINTMENT,
+            "Lucía Gómez confirmó su cita",
+            "Manicure gel hoy a las 10:00 am en Mesa de uñas 2.",
+            "Hace 8 min",
+            unread = true
+        ),
+        AppNotification(
+            "n2",
+            NotificationKind.PAYMENT,
+            "Tu membresía de septiembre está por vencer",
+            "Residente · $3,200. Puedes pagarla desde la pestaña de Pagos.",
+            "Hace 2 h",
+            unread = true
+        ),
+        AppNotification(
+            "n3",
+            NotificationKind.STUDIO,
+            "Mesa de uñas 1 se liberó",
+            "Quedó libre a partir de las 6:30 pm por si quieres reservarla.",
+            "Hace 5 h"
+        ),
+        AppNotification(
+            "n4",
+            NotificationKind.CONTRACT,
+            "Tu contrato quedó firmado",
+            "Folio AD-2026-0087. Puedes consultarlo desde tu perfil.",
+            "Ayer"
+        )
+    )
+
+    val clientNotifications: List<AppNotification> = listOf(
+        AppNotification(
+            "cn1",
+            NotificationKind.APPOINTMENT,
+            "Tu cita está confirmada",
+            "Manicure gel con Juanita Cruz, hoy a las 10:00 am.",
+            "Hace 15 min",
+            unread = true
+        ),
+        AppNotification(
+            "cn2",
+            NotificationKind.STUDIO,
+            "Cómo llegar a The Aura Den",
+            "${AuraCopy.ADDRESS_LINE_1}, ${AuraCopy.ADDRESS_LINE_2}. Toca el timbre del piso 2.",
+            "Hace 1 h",
+            unread = true
+        ),
+        AppNotification(
+            "cn3",
+            NotificationKind.PAYMENT,
+            "Tu pago se aplicó correctamente",
+            "Recibimos $450 por tu último servicio. Ya puedes descargar tu comprobante.",
+            "Hace 3 días"
+        )
+    )
+
+    val receptionNotifications: List<AppNotification> = listOf(
+        AppNotification(
+            "rn1",
+            NotificationKind.APPOINTMENT,
+            "Lucía Gómez llegó al estudio",
+            "Está en espera para Manicure gel con Juanita Cruz.",
+            "Hace 4 min",
+            unread = true
+        ),
+        AppNotification(
+            "rn2",
+            NotificationKind.STUDIO,
+            "Walk-in registrada",
+            "Valeria Núñez fue asignada a Mesa de uñas 1 con Camila Ortiz.",
+            "Hace 40 min"
+        )
+    )
+
+    val adminNotifications: List<AppNotification> = listOf(
+        AppNotification(
+            "an1",
+            NotificationKind.PAYMENT,
+            "2 membresías vencidas",
+            "Camila Ortiz y Mariana Ríos suman $5,300 por cobrar.",
+            "Hace 30 min",
+            unread = true
+        ),
+        AppNotification(
+            "an2",
+            NotificationKind.STUDIO,
+            "Ocupación al 78%",
+            "3 de 4 estaciones están en uso en este momento.",
+            "Hace 1 h",
+            unread = true
+        ),
+        AppNotification(
+            "an3",
+            NotificationKind.CONTRACT,
+            "Nueva rentista dada de alta",
+            "Camila Ortiz completó su registro con el plan Turista.",
+            "Ayer"
+        )
+    )
+
+    fun notificationsForRole(role: UserRole): List<AppNotification> = when (role) {
+        UserRole.SPECIALIST -> specialistNotifications
+        UserRole.CLIENT -> clientNotifications
+        UserRole.RECEPTION -> receptionNotifications
+        UserRole.ADMIN -> adminNotifications
+    }
 
     val todayKpis: List<Pair<String, String>> = listOf(
         "78%" to "Ocupación",

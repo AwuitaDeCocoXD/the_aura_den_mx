@@ -57,6 +57,7 @@ fun PaymentsScreen(
     state: DemoUiState,
     currentRoute: String,
     onTabSelected: (String) -> Unit,
+    onBack: () -> Unit,
     onChangePlan: () -> Unit,
     onOpenReceipt: (String) -> Unit
 ) {
@@ -70,6 +71,7 @@ fun PaymentsScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
+                onBack = onBack,
                 title = "Mis pagos",
                 eyebrow = state.profile.name,
                 content = {

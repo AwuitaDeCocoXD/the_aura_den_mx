@@ -7,6 +7,7 @@ struct ReceptionTodayView: View {
     let onOpenCheckIn: () -> Void
     let onOpenWalkIn: () -> Void
     let onOpenRoleSwitcher: () -> Void
+    let onOpenNotifications: () -> Void
 
     @Environment(DemoStore.self) private var store
 
@@ -24,21 +25,27 @@ struct ReceptionTodayView: View {
                 eyebrow: "Recepción",
                 subtitle: "\(AuraCopy.todayLabel) · 11:42 am",
                 trailing: {
-                    Button {
-                        AuraHaptics.tap()
-                        onOpenRoleSwitcher()
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(AuraPalette.white.opacity(0.14))
-                                .frame(width: 42, height: 42)
-                            Text("RC")
-                                .font(AuraFont.titleSmall())
-                                .foregroundStyle(AuraPalette.yellow)
+                    HStack(spacing: 4) {
+                        NotificationBell(
+                            unread: store.unreadNotifications,
+                            action: onOpenNotifications
+                        )
+                        Button {
+                            AuraHaptics.tap()
+                            onOpenRoleSwitcher()
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(AuraPalette.white.opacity(0.14))
+                                    .frame(width: 42, height: 42)
+                                Text("RC")
+                                    .font(AuraFont.titleSmall())
+                                    .foregroundStyle(AuraPalette.yellow)
+                            }
                         }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Cambiar de vista")
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Cambiar de vista")
                 }
             )
         } content: {

@@ -56,7 +56,11 @@ fun ClientHistoryScreen(
     upcoming: List<Appointment>,
     past: List<Appointment>,
     currentRoute: String,
+    guestName: String,
+    reviewedIds: Set<String>,
     onTabSelected: (String) -> Unit,
+    onBack: () -> Unit,
+    onReview: (String) -> Unit,
     onExplore: () -> Unit
 ) {
     var filter by remember { mutableStateOf(UPCOMING) }
@@ -68,8 +72,9 @@ fun ClientHistoryScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
+                onBack = onBack,
                 title = "Mis citas",
-                eyebrow = "Lucía Gómez",
+                eyebrow = guestName,
                 subtitle = "Tu historial en The Aura Den"
             )
         }
@@ -113,10 +118,20 @@ fun ClientHistoryScreen(
                 }
             } else {
                 items(visible, key = { it.id }) { appointment ->
-                    ClientAppointmentRow(
-                        appointment = appointment,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
-                    )
+                    val canReview = appointment.status == AppointmentStatus.COMPLETED &&
+                        appointment.id !in reviewedIds
+                    if (canReview) {
+                        ReviewPromptCard(
+                            appointment = appointment,
+                            onReview = { onReview(appointment.id) },
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+                        )
+                    } else {
+                        ClientAppointmentRow(
+                            appointment = appointment,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+                        )
+                    }
                 }
             }
         }

@@ -52,6 +52,7 @@ import com.rork.theauraden.ui.theme.StatusGreenSoft
 fun ReceptionWalkInScreen(
     currentRoute: String,
     onTabSelected: (String) -> Unit,
+    onBack: () -> Unit,
     onRegister: (
         clientName: String,
         service: String,
@@ -71,6 +72,7 @@ fun ReceptionWalkInScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
+                onBack = onBack,
                 title = "Registrar walk-in",
                 eyebrow = "Recepción",
                 subtitle = "Clienta sin cita previa"

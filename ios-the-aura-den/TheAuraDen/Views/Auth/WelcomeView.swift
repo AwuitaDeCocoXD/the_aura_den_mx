@@ -3,6 +3,7 @@ import SwiftUI
 /// Brand entrance: full-bleed blue canvas, centered logotype and two large actions.
 struct WelcomeView: View {
     let onCreateAccount: () -> Void
+    let onCreateGuestAccount: () -> Void
     let onSignIn: () -> Void
 
     var body: some View {
@@ -37,13 +38,22 @@ struct WelcomeView: View {
                 Spacer(minLength: 0)
 
                 AuraPrimaryButton(
-                    title: "Crear cuenta",
+                    title: "Soy especialista",
                     tint: AuraPalette.white,
                     foreground: AuraPalette.blue,
                     action: onCreateAccount
                 )
 
-                Spacer().frame(height: 14)
+                Spacer().frame(height: 12)
+
+                AuraPrimaryButton(
+                    title: "Soy invitada",
+                    tint: AuraPalette.yellow,
+                    foreground: AuraPalette.navy,
+                    action: onCreateGuestAccount
+                )
+
+                Spacer().frame(height: 12)
 
                 AuraPrimaryButton(
                     title: "Iniciar sesión",
@@ -52,7 +62,7 @@ struct WelcomeView: View {
                     action: onSignIn
                 )
 
-                Spacer().frame(height: 26)
+                Spacer().frame(height: 24)
 
                 Text("Un espacio para hacer crecer tu talento")
                     .font(AuraFont.bodyMedium())

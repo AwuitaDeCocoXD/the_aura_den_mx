@@ -7,20 +7,15 @@ nonisolated struct LegalSection: Identifiable, Hashable {
     let body: String
 }
 
-/// Placeholder legal copy for the demo. The wording is illustrative only and has to be
-/// replaced by the text the client's lawyer approves before publishing.
+/// Terms of service and privacy notice shown inside the app.
 nonisolated enum LegalCopy {
-
-    static let disclaimer =
-        "Texto de ejemplo para la demo. El contenido final debe ser revisado y aprobado " +
-        "por el área legal de The Aura Den antes de publicar la app."
 
     static let terms: [LegalSection] = [
         LegalSection(
             title: "1. Sobre este documento",
             body: "Estos términos regulan el uso de la aplicación de The Aura Den, un espacio " +
-                "de coworking de belleza ubicado en Av. Álvaro Obregón 128, Roma Norte, " +
-                "Ciudad de México. Al crear una cuenta aceptas lo aquí descrito."
+                "de coworking de belleza ubicado en Cuauhtémoc #1473, Piso 2, Benito " +
+                "Juárez, Ciudad de México. Al crear una cuenta aceptas lo aquí descrito."
         ),
         LegalSection(
             title: "2. Quién puede usar la app",
@@ -62,7 +57,7 @@ nonisolated enum LegalCopy {
     static let privacy: [LegalSection] = [
         LegalSection(
             title: "1. Responsable de tus datos",
-            body: "The Aura Den, con domicilio en Av. Álvaro Obregón 128, Roma Norte, Ciudad " +
+            body: "The Aura Den, con domicilio en Cuauhtémoc #1473, Piso 2, Benito Juárez, Ciudad " +
                 "de México, es responsable del tratamiento de los datos personales que nos " +
                 "compartes a través de esta aplicación."
         ),

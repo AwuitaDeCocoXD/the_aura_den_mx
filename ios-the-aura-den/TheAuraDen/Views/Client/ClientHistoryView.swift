@@ -8,6 +8,8 @@ private let historyFilters = [upcomingFilter, pastFilter]
 struct ClientHistoryView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
+    let onBack: () -> Void
+    let onReview: (String) -> Void
     let onExplore: () -> Void
 
     @Environment(DemoStore.self) private var store
@@ -23,8 +25,9 @@ struct ClientHistoryView: View {
         ) {
             AuraHeader(
                 title: "Mis citas",
-                eyebrow: "Lucía Gómez",
-                subtitle: "Tu historial en The Aura Den"
+                eyebrow: store.guestName,
+                subtitle: "Tu historial en The Aura Den",
+                onBack: onBack
             )
         } content: {
             ScrollView {
@@ -59,7 +62,14 @@ struct ClientHistoryView: View {
                     } else {
                         VStack(spacing: 12) {
                             ForEach(visible) { appointment in
-                                ClientAppointmentRow(appointment: appointment)
+                                if appointment.status == .completed,
+                                   !store.reviewedAppointmentIDs.contains(appointment.id) {
+                                    ReviewPromptCard(appointment: appointment) {
+                                        onReview(appointment.id)
+                                    }
+                                } else {
+                                    ClientAppointmentRow(appointment: appointment)
+                                }
                             }
                         }
                         .padding(.horizontal, 20)

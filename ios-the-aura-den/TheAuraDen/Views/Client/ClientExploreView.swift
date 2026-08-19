@@ -6,7 +6,8 @@ private let specialtyFilters = ["Todas", "Uñas", "Uñas acrílicas", "Pestañas
 struct ClientExploreView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
-    let onBookWith: (String, String) -> Void
+    let onBack: () -> Void
+    let onBookWith: (String) -> Void
 
     @State private var filter: String = specialtyFilters[0]
 
@@ -22,8 +23,9 @@ struct ClientExploreView: View {
         ) {
             AuraHeader(
                 title: "Explorar",
-                eyebrow: "The Aura Den · Roma Norte",
-                subtitle: "Elige con quién quieres consentirte"
+                eyebrow: "The Aura Den · \(AuraCopy.neighborhood)",
+                subtitle: "Elige con quién quieres consentirte",
+                onBack: onBack
             )
         } content: {
             ScrollView {
@@ -48,10 +50,7 @@ struct ClientExploreView: View {
                     VStack(spacing: 14) {
                         ForEach(specialists) { specialist in
                             SpecialistCard(specialist: specialist) {
-                                let serviceID = DemoData.services
-                                    .first { $0.name == specialist.specialty }?.id
-                                    ?? DemoData.services[0].id
-                                onBookWith(specialist.id, serviceID)
+                                onBookWith(specialist.id)
                             }
                         }
                     }

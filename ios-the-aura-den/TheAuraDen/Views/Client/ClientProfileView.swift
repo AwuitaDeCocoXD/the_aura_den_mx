@@ -4,6 +4,7 @@ import SwiftUI
 struct ClientProfileView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
+    let onBack: () -> Void
     let onOpenLegal: () -> Void
     let onSignOut: () -> Void
     let onDeleteAccount: () -> Void
@@ -21,15 +22,16 @@ struct ClientProfileView: View {
             onTabSelected: onTabSelected
         ) {
             AuraHeader(
-                title: AuraCopy.clientUser,
+                title: store.guestName,
                 eyebrow: "Mi cuenta",
-                subtitle: "Clienta desde junio de 2025",
+                subtitle: "Invitada de \(AuraCopy.brandName)",
+                onBack: onBack,
                 trailing: {
                     ZStack {
                         Circle()
                             .fill(AuraPalette.white.opacity(0.16))
                             .frame(width: 52, height: 52)
-                        Text("LG")
+                        Text(store.guestInitials)
                             .font(AuraFont.titleMedium())
                             .foregroundStyle(AuraPalette.yellow)
                     }

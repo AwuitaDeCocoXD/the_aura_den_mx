@@ -6,22 +6,28 @@ struct ClientAppointmentView: View {
     let onTabSelected: (AuraTabRoute) -> Void
     let onExplore: () -> Void
     let onPayService: (String, String) -> Void
+    let onOpenNotifications: () -> Void
     let onOpenRoleSwitcher: () -> Void
 
     @Environment(DemoStore.self) private var store
     @State private var showCancelDialog = false
 
-    private let specialist = DemoData.currentSpecialist
-
     var body: some View {
         let appointment = store.clientUpcoming.first
+        let specialist = DemoData.specialists
+            .first { $0.name == appointment?.specialistName } ?? DemoData.currentSpecialist
 
         AuraTabScaffold(
             role: .client,
             currentRoute: currentRoute,
             onTabSelected: onTabSelected
         ) {
-            ClientTopBar(onOpenRoleSwitcher: onOpenRoleSwitcher)
+            ClientTopBar(
+                initials: store.guestInitials,
+                unreadNotifications: store.unreadNotifications,
+                onOpenNotifications: onOpenNotifications,
+                onOpenRoleSwitcher: onOpenRoleSwitcher
+            )
         } content: {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
@@ -40,7 +46,7 @@ struct ClientAppointmentView: View {
 
                         Spacer().frame(height: 18)
 
-                        appointmentCard(appointment)
+                        appointmentCard(appointment, specialist: specialist)
 
                         Spacer().frame(height: 16)
 
@@ -64,7 +70,7 @@ struct ClientAppointmentView: View {
                             let serviceID = DemoData.services
                                 .first { $0.name == appointment.service }?.id
                                 ?? DemoData.services[0].id
-                            onPayService(DemoData.currentSpecialist.id, serviceID)
+                            onPayService(specialist.id, serviceID)
                         }
 
                         Button("Cancelar mi cita") {
@@ -79,14 +85,33 @@ struct ClientAppointmentView: View {
 
                         Spacer().frame(height: 20)
                     } else {
+                        Spacer().frame(height: 18)
+
+                        Text(greeting)
+                            .font(AuraFont.headlineMedium())
+                            .foregroundStyle(AuraPalette.navy)
+                            .padding(.bottom, 6)
+
+                        Text("Tu cuenta ya está lista. Solo falta elegir con quién consentirte.")
+                            .font(AuraFont.bodyMedium())
+                            .foregroundStyle(AuraPalette.inkMuted)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Spacer().frame(height: 20)
+
                         AuraEmptyState(
                             title: "Aún no tienes citas",
-                            message: "Explora a nuestras especialistas y agenda tu próximo servicio en The Aura Den.",
+                            message: "Explora a nuestras especialistas y agenda tu primer servicio en The Aura Den.",
                             symbol: "calendar.badge.checkmark",
                             actionLabel: "Explorar especialistas",
                             action: onExplore
                         )
-                        Spacer().frame(height: 20)
+
+                        Spacer().frame(height: 18)
+
+                        locationCard
+
+                        Spacer().frame(height: 24)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -108,7 +133,16 @@ struct ClientAppointmentView: View {
         }
     }
 
-    private func appointmentCard(_ appointment: Appointment) -> some View {
+    private var greeting: String {
+        let firstName = store.guestName.split(separator: " ").first.map(String.init)
+            ?? store.guestName
+        return store.isNewGuest ? "Bienvenida, \(firstName)" : "Hola, \(firstName)"
+    }
+
+    private func appointmentCard(
+        _ appointment: Appointment,
+        specialist: SpecialistProfile
+    ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 16) {
                 AuraAvatar(imageURL: specialist.imageURL, size: 76, ringColor: .clear)
@@ -168,11 +202,16 @@ struct ClientAppointmentView: View {
             StylizedMap()
                 .frame(height: 132)
                 .clipShape(.rect(cornerRadius: 18))
-                .padding(.bottom, 10)
+                .padding(.bottom, 12)
 
-            Text("The Aura Den · Roma Norte")
-                .font(AuraFont.bodySmall())
-                .foregroundStyle(AuraPalette.inkMuted)
+            HStack(spacing: 8) {
+                Image(systemName: "clock")
+                    .font(.system(size: 13))
+                    .foregroundStyle(AuraPalette.blue)
+                Text(AuraCopy.openingHours)
+                    .font(AuraFont.bodySmall())
+                    .foregroundStyle(AuraPalette.inkMuted)
+            }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -182,11 +221,22 @@ struct ClientAppointmentView: View {
 
 /// White top bar with the centred logotype, used across the client role.
 struct ClientTopBar: View {
+    var initials: String = "LG"
+    var unreadNotifications: Int = 0
+    var onOpenNotifications: (() -> Void)?
     var onOpenRoleSwitcher: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 0) {
-            Spacer().frame(width: 44)
+            if let onOpenNotifications {
+                NotificationBell(
+                    unread: unreadNotifications,
+                    tint: AuraPalette.blue,
+                    action: onOpenNotifications
+                )
+            } else {
+                Spacer().frame(width: 44)
+            }
             AuraLogo(
                 size: .compact,
                 textColor: AuraPalette.navy,
@@ -204,7 +254,7 @@ struct ClientTopBar: View {
                         Circle()
                             .fill(AuraPalette.sandSoft)
                             .frame(width: 40, height: 40)
-                        Text("LG")
+                        Text(initials)
                             .font(AuraFont.titleSmall())
                             .foregroundStyle(AuraPalette.navy)
                     }

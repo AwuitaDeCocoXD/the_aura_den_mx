@@ -847,6 +847,47 @@ struct ChartColumn: View {
     }
 }
 
+/// Bell that opens the notice centre, with a yellow badge while notices are unread.
+struct NotificationBell: View {
+    let unread: Int
+    var tint: Color = AuraPalette.white
+    let action: () -> Void
+
+    var body: some View {
+        Button {
+            AuraHaptics.tap()
+            action()
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(tint.opacity(0.1))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "bell")
+                        .font(.system(size: 19, weight: .medium))
+                        .foregroundStyle(tint)
+                }
+                .frame(width: 44, height: 44)
+
+                if unread > 0 {
+                    ZStack {
+                        Circle()
+                            .fill(AuraPalette.yellow)
+                            .frame(width: 16, height: 16)
+                        Text("\(unread)")
+                            .font(AuraFont.labelSmall())
+                            .foregroundStyle(AuraPalette.navy)
+                    }
+                    .offset(x: -1, y: 3)
+                }
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(unread > 0 ? "Avisos, \(unread) sin leer" : "Avisos")
+    }
+}
+
 // MARK: - Screen chrome
 
 /// Warm canvas used behind every scrolling screen.

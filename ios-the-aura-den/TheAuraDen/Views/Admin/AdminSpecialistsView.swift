@@ -6,6 +6,7 @@ private let paymentFilters = ["Todas", "Al corriente", "Con adeudo"]
 struct AdminSpecialistsView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
+    let onBack: () -> Void
 
     @State private var filter: String = paymentFilters[0]
 
@@ -33,6 +34,7 @@ struct AdminSpecialistsView: View {
                 title: "Rentistas",
                 eyebrow: "Modo administrador",
                 subtitle: "\(DemoData.specialists.count) especialistas activas",
+                onBack: onBack,
                 content: {
                     StatusPill(
                         text: "Renta comprometida \(Money.format(monthlyIncome)) / mes",
@@ -226,42 +228,6 @@ private struct PendingChargeRow: View {
     }
 }
 
-/// Contract health of a renter: signed with folio, or still pending signature.
-private struct ContractStatusRow: View {
-    let specialist: SpecialistProfile
-
-    private var isSigned: Bool { specialist.contractSigned }
-
-    var body: some View {
-        HStack(spacing: 9) {
-            Image(systemName: isSigned ? "checkmark.seal.fill" : "signature")
-                .font(.system(size: 15))
-                .foregroundStyle(isSigned ? AuraPalette.green : AuraPalette.amber)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(isSigned ? "Contrato firmado" : "Pendiente de firma")
-                    .font(AuraFont.labelLarge())
-                    .foregroundStyle(isSigned ? AuraPalette.green : AuraPalette.amber)
-                Text(
-                    isSigned
-                        ? "Folio \(specialist.contractFolio ?? "") · \(specialist.contractDateLabel ?? "")"
-                        : "No puede reservar estaciones hasta firmar"
-                )
-                .font(AuraFont.bodySmall())
-                .foregroundStyle(AuraPalette.inkMuted)
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(.horizontal, 13)
-        .padding(.vertical, 11)
-        .frame(maxWidth: .infinity)
-        .background(
-            isSigned ? AuraPalette.greenSoft.opacity(0.6) : AuraPalette.amberSoft,
-            in: .rect(cornerRadius: 16)
-        )
-    }
-}
-
 private struct SpecialistRow: View {
     let specialist: SpecialistProfile
 
@@ -292,10 +258,7 @@ private struct SpecialistRow: View {
                     symbol: owes ? "exclamationmark.circle.fill" : nil
                 )
             }
-            .padding(.bottom, 14)
-
-            ContractStatusRow(specialist: specialist)
-                .padding(.bottom, 16)
+            .padding(.bottom, 16)
 
             HStack(spacing: 11) {
                 ZStack {

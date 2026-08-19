@@ -57,7 +57,8 @@ import com.rork.theauraden.ui.theme.StatusRed
 @Composable
 fun AdminReportsScreen(
     currentRoute: String,
-    onTabSelected: (String) -> Unit
+    onTabSelected: (String) -> Unit,
+    onBack: () -> Unit
 ) {
     val recurringRent = DemoData.revenueByPlan.sumOf { it.amount }
 
@@ -67,6 +68,7 @@ fun AdminReportsScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
+                onBack = onBack,
                 title = "Reportes",
                 eyebrow = "Modo administrador",
                 subtitle = "Agosto 2025 · cierre parcial"

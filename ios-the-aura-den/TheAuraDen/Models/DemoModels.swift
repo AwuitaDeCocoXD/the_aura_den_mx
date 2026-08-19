@@ -217,6 +217,33 @@ nonisolated struct ClientService: Identifiable, Hashable {
     let price: Int
 }
 
+/// Which kind of event produced an in-app notice.
+nonisolated enum NotificationKind: Hashable {
+    case payment
+    case appointment
+    case contract
+    case studio
+
+    var symbol: String {
+        switch self {
+        case .payment: "creditcard.fill"
+        case .appointment: "calendar.badge.checkmark"
+        case .contract: "checkmark.seal.fill"
+        case .studio: "storefront.fill"
+        }
+    }
+}
+
+/// An entry of the in-app notice centre opened from the bell.
+nonisolated struct AppNotification: Identifiable, Hashable {
+    let id: String
+    let kind: NotificationKind
+    let title: String
+    let body: String
+    let timeAgo: String
+    var unread: Bool = false
+}
+
 nonisolated struct ReportMetric: Identifiable, Hashable {
     var id: String { label }
     let label: String

@@ -14,14 +14,18 @@ nonisolated enum AuraImages {
         "https://r2-pub.rork.com/projects/hik0iv6rdfhnc5wzj5h1i/assets/5d7cb0e7-d501-4b4c-9597-3deb1486a380.png"
     static let camila =
         "https://r2-pub.rork.com/projects/hik0iv6rdfhnc5wzj5h1i/assets/1c1e2596-a6c0-4144-998f-7cd070b83420.png"
+    static let studio =
+        "https://r2-pub.rork.com/projects/hik0iv6rdfhnc5wzj5h1i/assets/af8c7c99-618c-425e-9124-1ecdfa7b6347.png"
 }
 
 /// Static copy shared across screens.
 nonisolated enum AuraCopy {
     static let brandName = "The Aura Den"
     static let tagline = "Beauty coworking · CDMX"
-    static let addressLine1 = "Av. Álvaro Obregón 128"
-    static let addressLine2 = "Roma Norte, CDMX"
+    static let addressLine1 = "Cuauhtémoc #1473, Piso 2"
+    static let addressLine2 = "Benito Juárez, CDMX"
+    static let neighborhood = "Benito Juárez"
+    static let openingHours = "Lun a sáb · 9:00 am – 8:00 pm"
     static let todayLabel = "Martes 18 de agosto"
     static let currentUser = "Juanita Cruz"
     static let clientUser = "Lucía Gómez"
@@ -607,6 +611,120 @@ nonisolated enum DemoData {
     static let overdueTotal: Int = pendingCharges.filter(\.overdue).reduce(0) { $0 + $1.amount }
 
     static let pendingTotal: Int = pendingCharges.reduce(0) { $0 + $1.amount }
+
+    // MARK: - Notices
+
+    static let specialistNotifications: [AppNotification] = [
+        AppNotification(
+            id: "n1",
+            kind: .appointment,
+            title: "Lucía Gómez confirmó su cita",
+            body: "Manicure gel hoy a las 10:00 am en Mesa de uñas 2.",
+            timeAgo: "Hace 8 min",
+            unread: true
+        ),
+        AppNotification(
+            id: "n2",
+            kind: .payment,
+            title: "Tu membresía de septiembre está por vencer",
+            body: "Residente · $3,200. Puedes pagarla desde la pestaña de Pagos.",
+            timeAgo: "Hace 2 h",
+            unread: true
+        ),
+        AppNotification(
+            id: "n3",
+            kind: .studio,
+            title: "Mesa de uñas 1 se liberó",
+            body: "Quedó libre a partir de las 6:30 pm por si quieres reservarla.",
+            timeAgo: "Hace 5 h"
+        ),
+        AppNotification(
+            id: "n4",
+            kind: .contract,
+            title: "Tu contrato quedó firmado",
+            body: "Folio AD-2026-0087. Puedes consultarlo desde tu perfil.",
+            timeAgo: "Ayer"
+        )
+    ]
+
+    static let clientNotifications: [AppNotification] = [
+        AppNotification(
+            id: "cn1",
+            kind: .appointment,
+            title: "Tu cita está confirmada",
+            body: "Manicure gel con Juanita Cruz, hoy a las 10:00 am.",
+            timeAgo: "Hace 15 min",
+            unread: true
+        ),
+        AppNotification(
+            id: "cn2",
+            kind: .studio,
+            title: "Cómo llegar a The Aura Den",
+            body: "\(AuraCopy.addressLine1), \(AuraCopy.addressLine2). Toca el timbre del piso 2.",
+            timeAgo: "Hace 1 h",
+            unread: true
+        ),
+        AppNotification(
+            id: "cn3",
+            kind: .payment,
+            title: "Tu pago se aplicó correctamente",
+            body: "Recibimos $450 por tu último servicio. Ya puedes descargar tu comprobante.",
+            timeAgo: "Hace 3 días"
+        )
+    ]
+
+    static let receptionNotifications: [AppNotification] = [
+        AppNotification(
+            id: "rn1",
+            kind: .appointment,
+            title: "Lucía Gómez llegó al estudio",
+            body: "Está en espera para Manicure gel con Juanita Cruz.",
+            timeAgo: "Hace 4 min",
+            unread: true
+        ),
+        AppNotification(
+            id: "rn2",
+            kind: .studio,
+            title: "Walk-in registrada",
+            body: "Valeria Núñez fue asignada a Mesa de uñas 1 con Camila Ortiz.",
+            timeAgo: "Hace 40 min"
+        )
+    ]
+
+    static let adminNotifications: [AppNotification] = [
+        AppNotification(
+            id: "an1",
+            kind: .payment,
+            title: "2 membresías vencidas",
+            body: "Camila Ortiz y Mariana Ríos suman $5,300 por cobrar.",
+            timeAgo: "Hace 30 min",
+            unread: true
+        ),
+        AppNotification(
+            id: "an2",
+            kind: .studio,
+            title: "Ocupación al 78%",
+            body: "3 de 4 estaciones están en uso en este momento.",
+            timeAgo: "Hace 1 h",
+            unread: true
+        ),
+        AppNotification(
+            id: "an3",
+            kind: .contract,
+            title: "Nueva rentista dada de alta",
+            body: "Camila Ortiz completó su registro con el plan Turista.",
+            timeAgo: "Ayer"
+        )
+    ]
+
+    static func notifications(for role: UserRole) -> [AppNotification] {
+        switch role {
+        case .specialist: specialistNotifications
+        case .client: clientNotifications
+        case .reception: receptionNotifications
+        case .admin: adminNotifications
+        }
+    }
 
     static let todayKpis: [KpiTile] = [
         KpiTile(value: "78%", label: "Ocupación"),

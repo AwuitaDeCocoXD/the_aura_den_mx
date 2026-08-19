@@ -19,9 +19,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.rork.theauraden.data.UserRole
 
 object Routes {
+    const val SPLASH = "splash"
     const val WELCOME = "welcome"
     const val LOGIN = "login"
     const val CREATE_ACCOUNT = "create_account"
+
+    const val NOTIFICATIONS = "notifications"
 
     const val SPECIALIST_HOME = "specialist/home"
     const val SPECIALIST_AGENDA = "specialist/agenda"
@@ -50,6 +53,8 @@ object Routes {
     const val CLIENT_EXPLORE = "client/explore"
     const val CLIENT_HISTORY = "client/history"
     const val CLIENT_PROFILE = "client/profile"
+    const val CLIENT_BOOKING = "client/booking"
+    const val CLIENT_REVIEW = "client/review"
 
     const val LEGAL = "legal"
 
@@ -61,6 +66,9 @@ object Routes {
     const val ADMIN_SPECIALISTS = "admin/specialists"
     const val ADMIN_REPORTS = "admin/reports"
 
+    fun createAccount(mode: String): String = "$CREATE_ACCOUNT/$mode"
+    fun booking(specialistId: String): String = "$CLIENT_BOOKING/$specialistId"
+    fun review(appointmentId: String): String = "$CLIENT_REVIEW/$appointmentId"
     fun reserveSpace(stationId: String): String = "$RESERVE_SPACE/$stationId"
     fun appointmentDetail(appointmentId: String): String = "$APPOINTMENT_DETAIL/$appointmentId"
     fun success(kind: String): String = "$SUCCESS/$kind"

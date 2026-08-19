@@ -33,7 +33,8 @@ import com.rork.theauraden.ui.theme.AuraInkMuted
 fun LoginScreen(
     onBack: () -> Unit,
     onSignedIn: () -> Unit,
-    onCreateAccount: () -> Unit
+    onCreateAccount: () -> Unit,
+    onCreateGuestAccount: () -> Unit
 ) {
     var identifier by remember { mutableStateOf("juanita@correo.com") }
     var password by remember { mutableStateOf("auraden2025") }
@@ -96,6 +97,13 @@ fun LoginScreen(
             TextButton(onClick = onCreateAccount) {
                 Text(
                     text = "Crear cuenta de especialista",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = AuraBlue
+                )
+            }
+            TextButton(onClick = onCreateGuestAccount) {
+                Text(
+                    text = "Crear cuenta de invitada",
                     style = MaterialTheme.typography.labelLarge,
                     color = AuraBlue
                 )

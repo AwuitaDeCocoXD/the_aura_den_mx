@@ -71,6 +71,7 @@ private val stationFilters = listOf("Todas", "Disponibles", "Mesa de uñas", "Pe
 fun SpacesScreen(
     currentRoute: String,
     onTabSelected: (String) -> Unit,
+    onBack: () -> Unit,
     hasSignedContract: Boolean,
     onOpenStation: (String) -> Unit,
     onOpenMemberships: () -> Unit,
@@ -92,6 +93,7 @@ fun SpacesScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
+                onBack = onBack,
                 title = "Explorar espacios",
                 eyebrow = AuraCopy.TODAY_LABEL,
                 subtitle = "Encuentra tu lugar para crear"

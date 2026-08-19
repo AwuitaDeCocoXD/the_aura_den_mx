@@ -242,27 +242,6 @@ fun ContractReadScreen(
 
             ContractPaper(signerName = signerName, signedContract = signedContract)
 
-            Spacer(Modifier.height(16.dp))
-            AuraCard(containerColor = AuraCream) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Info,
-                        contentDescription = null,
-                        tint = AuraSand,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = ContractCopy.DISCLAIMER,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AuraInkMuted
-                    )
-                }
-            }
-
             Spacer(Modifier.height(26.dp))
         }
     }

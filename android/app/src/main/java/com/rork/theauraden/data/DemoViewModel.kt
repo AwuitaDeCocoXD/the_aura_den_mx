@@ -21,9 +21,36 @@ data class DemoUiState(
     val lastReservation: String? = null,
     /** Null while the specialist has not signed her rental agreement yet. */
     val signedContract: SignedContract? = DemoData.signedContract,
-    val contractSignerName: String = AuraCopy.CURRENT_USER
+    val contractSignerName: String = AuraCopy.CURRENT_USER,
+    /** Name of the guest using the app. Changes when a brand new guest signs up. */
+    val guestName: String = AuraCopy.CLIENT_USER,
+    /** True right after a guest signs up: she has no appointments and no history yet. */
+    val isNewGuest: Boolean = false,
+    val readNotificationIds: Set<String> = emptySet(),
+    /** Appointment ids the guest already rated. */
+    val reviewedAppointmentIds: Set<String> = emptySet()
 ) {
     val hasSignedContract: Boolean get() = signedContract != null
+
+    val guestInitials: String
+        get() = guestName.trim().split(" ")
+            .filter { it.isNotBlank() }
+            .take(2)
+            .joinToString("") { it.first().uppercase() }
+            .ifBlank { "AD" }
+
+    val notifications: List<AppNotification>
+        get() = DemoData.notificationsForRole(role).map {
+            if (it.id in readNotificationIds) it.copy(unread = false) else it
+        }
+
+    val unreadNotifications: Int get() = notifications.count { it.unread }
+
+    /** A completed visit the guest has not rated yet, offered right after her service. */
+    val reviewableAppointment: Appointment?
+        get() = clientHistory.firstOrNull {
+            it.status == AppointmentStatus.COMPLETED && it.id !in reviewedAppointmentIds
+        }
 
     val activePlan: MembershipPlan get() = DemoData.planById(activePlanId)
 
@@ -55,6 +82,73 @@ class DemoViewModel : ViewModel() {
 
     fun setRole(role: UserRole) {
         _uiState.update { it.copy(role = role) }
+    }
+
+    /** A brand new guest account: no upcoming appointment and no past visits. */
+    fun startGuestAccount(name: String) {
+        _uiState.update {
+            it.copy(
+                role = UserRole.CLIENT,
+                guestName = name.ifBlank { it.guestName },
+                isNewGuest = true,
+                clientAppointment = null,
+                clientHistory = emptyList()
+            )
+        }
+    }
+
+    /** The guest books her own appointment from Explorar. */
+    fun bookGuestAppointment(
+        specialist: SpecialistProfile,
+        service: ClientService,
+        dayId: String,
+        time: String
+    ): Appointment {
+        val day = DemoData.weekDays.first { it.id == dayId }
+        val station = DemoData.stations.firstOrNull {
+            if (service.name.contains("Pestañas")) it.kind == "Pestañas" else it.kind != "Pestañas"
+        } ?: DemoData.stations.first()
+        val appointment = Appointment(
+            id = "guest-${System.currentTimeMillis()}",
+            clientName = _uiState.value.guestName,
+            specialistName = specialist.name,
+            service = service.name,
+            dayId = dayId,
+            dateLabel = day.fullLabel,
+            time = time,
+            stationName = station.name,
+            status = AppointmentStatus.CONFIRMED,
+            notes = null,
+            price = service.price
+        )
+        _uiState.update {
+            it.copy(
+                clientAppointment = appointment,
+                isNewGuest = false,
+                appointments = it.appointments + appointment
+            )
+        }
+        return appointment
+    }
+
+    fun markNotificationsRead() {
+        _uiState.update { state ->
+            state.copy(
+                readNotificationIds = state.readNotificationIds +
+                    DemoData.notificationsForRole(state.role).map { it.id }
+            )
+        }
+    }
+
+    /** Stores the guest's rating so the same visit is not offered again. */
+    fun submitReview(appointmentId: String) {
+        _uiState.update { it.copy(reviewedAppointmentIds = it.reviewedAppointmentIds + appointmentId) }
+    }
+
+    /** Puts every screen back to its opening state so the demo can be shown again. */
+    fun resetDemo() {
+        folioCounter = 3400
+        _uiState.value = DemoUiState()
     }
 
     fun selectDay(dayId: String) {

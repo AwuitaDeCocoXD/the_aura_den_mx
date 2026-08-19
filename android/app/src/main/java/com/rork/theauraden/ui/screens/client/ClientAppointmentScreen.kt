@@ -50,6 +50,7 @@ import com.rork.theauraden.data.UserRole
 import com.rork.theauraden.ui.components.AuraAvatar
 import com.rork.theauraden.ui.components.AuraCard
 import com.rork.theauraden.ui.components.AuraEmptyState
+import com.rork.theauraden.ui.components.NotificationBell
 import com.rork.theauraden.ui.components.AuraLogo
 import com.rork.theauraden.ui.components.AuraPrimaryButton
 import com.rork.theauraden.ui.components.AuraSecondaryButton
@@ -75,14 +76,21 @@ import com.rork.theauraden.ui.theme.StatusRed
 fun ClientAppointmentScreen(
     appointment: Appointment?,
     currentRoute: String,
+    guestName: String,
+    guestInitials: String,
+    isNewGuest: Boolean,
+    unreadNotifications: Int,
     onTabSelected: (String) -> Unit,
+    onOpenNotifications: () -> Unit,
     onCancel: () -> Unit,
     onExplore: () -> Unit,
     onPayService: () -> Unit,
     onOpenRoleSwitcher: () -> Unit
 ) {
     var showCancelDialog by remember { mutableStateOf(false) }
-    val specialist: SpecialistProfile = DemoData.currentSpecialist
+    val specialist: SpecialistProfile = DemoData.specialists
+        .firstOrNull { it.name == appointment?.specialistName }
+        ?: DemoData.currentSpecialist
 
     AuraTabScaffold(
         role = UserRole.CLIENT,
@@ -101,7 +109,11 @@ fun ClientAppointmentScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Spacer(Modifier.width(44.dp))
+                    NotificationBell(
+                        unread = unreadNotifications,
+                        onClick = onOpenNotifications,
+                        tint = AuraBlue
+                    )
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                         AuraLogo(
                             size = LogoSize.Compact,
@@ -119,7 +131,7 @@ fun ClientAppointmentScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "LG",
+                            text = guestInitials,
                             style = MaterialTheme.typography.titleSmall,
                             color = AuraNavy
                         )
@@ -136,15 +148,34 @@ fun ClientAppointmentScreen(
                 .padding(horizontal = 20.dp)
         ) {
             if (appointment == null) {
+                Spacer(Modifier.height(18.dp))
+                Text(
+                    text = if (isNewGuest) {
+                        "Bienvenida, ${guestName.split(" ").first()}"
+                    } else {
+                        "Hola, ${guestName.split(" ").first()}"
+                    },
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = AuraNavy
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = "Tu cuenta ya está lista. Solo falta elegir con quién consentirte.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AuraInkMuted
+                )
+                Spacer(Modifier.height(20.dp))
                 AuraEmptyState(
                     title = "Aún no tienes citas",
-                    message = "Explora a nuestras especialistas y agenda tu próximo servicio " +
+                    message = "Explora a nuestras especialistas y agenda tu primer servicio " +
                         "en The Aura Den.",
                     icon = Icons.Rounded.EventAvailable,
                     actionLabel = "Explorar especialistas",
                     onAction = onExplore
                 )
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(18.dp))
+                StudioLocationCard()
+                Spacer(Modifier.height(24.dp))
                 return@Column
             }
 
@@ -210,44 +241,7 @@ fun ClientAppointmentScreen(
             }
 
             Spacer(Modifier.height(16.dp))
-            AuraCard(containerColor = AuraCream) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Rounded.Place,
-                            contentDescription = null,
-                            tint = AuraSand,
-                            modifier = Modifier.size(19.dp)
-                        )
-                        Spacer(Modifier.width(10.dp))
-                        Column {
-                            Text(
-                                text = AuraCopy.ADDRESS_LINE_1,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = AuraNavy
-                            )
-                            Text(
-                                text = AuraCopy.ADDRESS_LINE_2,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = AuraInkMuted
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(14.dp))
-                    StylizedMap(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(132.dp)
-                            .clip(RoundedCornerShape(18.dp))
-                    )
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        text = "The Aura Den · Roma Norte",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AuraInkMuted
-                    )
-                }
-            }
+            StudioLocationCard()
 
             Spacer(Modifier.height(20.dp))
             AuraPrimaryButton(
@@ -319,6 +313,58 @@ fun ClientAppointmentScreen(
                 }
             }
         )
+    }
+}
+
+/** Where the studio is, with a stylized map and the opening hours. */
+@Composable
+private fun StudioLocationCard() {
+    AuraCard(containerColor = AuraCream) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Rounded.Place,
+                    contentDescription = null,
+                    tint = AuraSand,
+                    modifier = Modifier.size(19.dp)
+                )
+                Spacer(Modifier.width(10.dp))
+                Column {
+                    Text(
+                        text = AuraCopy.ADDRESS_LINE_1,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = AuraNavy
+                    )
+                    Text(
+                        text = AuraCopy.ADDRESS_LINE_2,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = AuraInkMuted
+                    )
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            StylizedMap(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(132.dp)
+                    .clip(RoundedCornerShape(18.dp))
+            )
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Rounded.Schedule,
+                    contentDescription = null,
+                    tint = AuraBlue,
+                    modifier = Modifier.size(15.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = AuraCopy.OPENING_HOURS,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AuraInkMuted
+                )
+            }
+        }
     }
 }
 

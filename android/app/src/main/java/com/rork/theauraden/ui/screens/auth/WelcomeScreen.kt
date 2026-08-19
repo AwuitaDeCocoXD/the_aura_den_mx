@@ -33,6 +33,7 @@ import com.rork.theauraden.ui.theme.AuraYellow
 @Composable
 fun WelcomeScreen(
     onCreateAccount: () -> Unit,
+    onCreateGuestAccount: () -> Unit,
     onSignIn: () -> Unit
 ) {
     Box(
@@ -64,19 +65,26 @@ fun WelcomeScreen(
             )
             Spacer(Modifier.weight(1f))
             AuraPrimaryButton(
-                text = "Crear cuenta",
+                text = "Soy especialista",
                 onClick = onCreateAccount,
                 containerColor = AuraWhite,
                 contentColor = AuraBlue
             )
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(12.dp))
+            AuraPrimaryButton(
+                text = "Soy invitada",
+                onClick = onCreateGuestAccount,
+                containerColor = AuraYellow,
+                contentColor = AuraNavy
+            )
+            Spacer(Modifier.height(12.dp))
             AuraPrimaryButton(
                 text = "Iniciar sesión",
                 onClick = onSignIn,
                 containerColor = AuraWhite.copy(alpha = 0.14f),
                 contentColor = AuraWhite
             )
-            Spacer(Modifier.height(26.dp))
+            Spacer(Modifier.height(24.dp))
             Text(
                 text = "Un espacio para hacer crecer tu talento",
                 style = MaterialTheme.typography.bodyMedium,

@@ -8,6 +8,9 @@ struct AdminLiveView: View {
     let onTabSelected: (AuraTabRoute) -> Void
     let onOpenSpecialists: () -> Void
     let onOpenRoleSwitcher: () -> Void
+    let onOpenNotifications: () -> Void
+
+    @Environment(DemoStore.self) private var store
 
     @State private var filter: String = liveFilters[0]
 
@@ -43,21 +46,27 @@ struct AdminLiveView: View {
                 eyebrow: "Modo administrador",
                 subtitle: "\(AuraCopy.todayLabel) · 11:42 am",
                 trailing: {
-                    Button {
-                        AuraHaptics.tap()
-                        onOpenRoleSwitcher()
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(AuraPalette.white.opacity(0.14))
-                                .frame(width: 42, height: 42)
-                            Text("AD")
-                                .font(AuraFont.titleSmall())
-                                .foregroundStyle(AuraPalette.yellow)
+                    HStack(spacing: 4) {
+                        NotificationBell(
+                            unread: store.unreadNotifications,
+                            action: onOpenNotifications
+                        )
+                        Button {
+                            AuraHaptics.tap()
+                            onOpenRoleSwitcher()
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(AuraPalette.white.opacity(0.14))
+                                    .frame(width: 42, height: 42)
+                                Text("AD")
+                                    .font(AuraFont.titleSmall())
+                                    .foregroundStyle(AuraPalette.yellow)
+                            }
                         }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Cambiar de vista")
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Cambiar de vista")
                 }
             )
         } content: {

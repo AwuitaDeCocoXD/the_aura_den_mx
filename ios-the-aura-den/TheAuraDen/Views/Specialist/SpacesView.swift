@@ -6,6 +6,7 @@ private let stationFilters = ["Todas", "Disponibles", "Mesa de uñas", "Pestaña
 struct SpacesView: View {
     let currentRoute: AuraTabRoute
     let onTabSelected: (AuraTabRoute) -> Void
+    let onBack: () -> Void
     let onOpenStation: (String) -> Void
     let onOpenMemberships: () -> Void
     let onSignContract: () -> Void
@@ -33,7 +34,8 @@ struct SpacesView: View {
             AuraHeader(
                 title: "Explorar espacios",
                 eyebrow: AuraCopy.todayLabel,
-                subtitle: "Encuentra tu lugar para crear"
+                subtitle: "Encuentra tu lugar para crear",
+                onBack: onBack
             )
         } content: {
             ScrollView {

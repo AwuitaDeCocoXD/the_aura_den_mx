@@ -54,6 +54,7 @@ fun AgendaScreen(
     state: DemoUiState,
     currentRoute: String,
     onTabSelected: (String) -> Unit,
+    onBack: () -> Unit,
     onSelectDay: (String) -> Unit,
     onOpenAppointment: (String) -> Unit,
     onScheduleClient: () -> Unit
@@ -69,6 +70,7 @@ fun AgendaScreen(
         onTabSelected = onTabSelected,
         header = {
             AuraHeader(
+                onBack = onBack,
                 title = "Mi agenda",
                 eyebrow = state.profile.name,
                 subtitle = state.selectedDay.fullLabel,
